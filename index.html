@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦝 AyunoTracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:#e2e2e2;min-height:100vh;display:flex;justify-content:center;padding:20px;position:relative;overflow-x:hidden}
+
+.tapiz{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.tapiz-raccoon{position:absolute;font-size:26px;opacity:0.09;animation:float-bg var(--d) ease-in-out infinite;animation-delay:var(--dl)}
+@keyframes float-bg{0%,100%{transform:translateY(0) rotate(var(--r))}50%{transform:translateY(-7px) rotate(var(--r))}}
+
+.wrap{width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;z-index:1}
+
+.app-title{font-size:28px;font-weight:900;background:linear-gradient(90deg,#444,#777,#e8821a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center}
+.app-sub{font-size:12px;color:rgba(0,0,0,0.38);text-align:center;margin-top:2px;font-weight:700}
+
+.raccoon-icon-area{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
+.main-raccoon{font-size:72px;line-height:1;animation:bounce-main 2.5s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.12))}
+@keyframes bounce-main{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.05)}}
+.raccoon-mood{font-size:13px;font-weight:800;color:#555;background:rgba(255,255,255,0.88);padding:3px 12px;border-radius:20px;border:1.5px solid rgba(0,0,0,0.1)}
+.bubble-txt{position:absolute;top:-4px;right:-30px;background:linear-gradient(135deg,#666,#999);color:#fff;font-size:11px;font-weight:800;padding:5px 11px;border-radius:14px 14px 14px 2px;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,0.15);animation:pop .3s ease}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+
+.card{background:rgba(255,255,255,0.88);border:1.5px solid rgba(255,255,255,0.98);border-radius:24px;padding:20px;width:100%;box-shadow:0 2px 16px rgba(0,0,0,0.07)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 13px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.badge-fast{background:rgba(100,100,100,0.12);color:#444;border:1.5px solid rgba(100,100,100,0.22)}
+.badge-eat{background:rgba(232,130,26,0.12);color:#b85e0a;border:1.5px solid rgba(232,130,26,0.28)}
+.dot{width:6px;height:6px;border-radius:50%;animation:pulse 1.5s ease-in-out infinite}
+.badge-fast .dot{background:#888}
+.badge-eat .dot{background:#e8821a}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
+.big-time{font-size:52px;font-weight:900;color:#222;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums;text-align:center}
+.time-lbl{font-size:12px;color:rgba(0,0,0,.4);font-weight:700;margin-bottom:18px;text-align:center}
+.track{width:100%;height:13px;background:rgba(0,0,0,.08);border-radius:20px;overflow:hidden;margin-bottom:6px}
+.fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#aaa,#555,#e8821a);background-size:200%;animation:shine 2.5s linear infinite;transition:width 1s ease}
+@keyframes shine{0%{background-position:0%}100%{background-position:200%}}
+.prog-labs{display:flex;justify-content:space-between;margin-bottom:16px}
+.prog-labs span{font-size:11px;color:rgba(0,0,0,.3);font-weight:700}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mbox{background:rgba(0,0,0,.04);border-radius:14px;padding:11px;border:1.5px solid rgba(0,0,0,.07);text-align:center}
+.mbox-ico{font-size:20px;margin-bottom:3px}
+.mbox-val{font-size:20px;font-weight:800;color:#222;font-variant-numeric:tabular-nums}
+.mbox-lbl{font-size:10px;color:rgba(0,0,0,.38);font-weight:700;margin-top:2px}
+
+.ctrl{background:rgba(255,255,255,0.88);border:1.5px solid rgba(255,255,255,0.98);border-radius:22px;padding:18px;width:100%;box-shadow:0 2px 16px rgba(0,0,0,0.06)}
+.sec-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(0,0,0,.3);margin-bottom:10px}
+.fast-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px}
+.fopt{padding:8px 2px;border-radius:10px;border:1.5px solid rgba(0,0,0,.12);background:rgba(0,0,0,.03);color:rgba(0,0,0,.45);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;text-align:center}
+.fopt:hover{border-color:#888;color:#444;background:rgba(0,0,0,.07)}
+.fopt.on{border-color:#555;background:rgba(0,0,0,.1);color:#333}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.row label{font-size:12px;color:rgba(0,0,0,.42);font-weight:700;white-space:nowrap}
+.tinput{flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid rgba(0,0,0,.12);background:rgba(255,255,255,.92);color:#222;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;outline:none;transition:border-color .2s}
+.tinput:focus{border-color:#666}
+.notif-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(0,0,0,.06);margin-top:2px;margin-bottom:10px}
+.notif-row span{font-size:12px;color:rgba(0,0,0,.45);font-weight:700}
+.toggle{position:relative;width:38px;height:22px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.stoggle{position:absolute;inset:0;background:rgba(0,0,0,.18);border-radius:22px;transition:.3s}
+.stoggle:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+input:checked+.stoggle{background:linear-gradient(90deg,#888,#555)}
+input:checked+.stoggle:before{transform:translateX(16px)}
+.btn-start{width:100%;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#777,#444);color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.22)}
+.btn-start:active{transform:scale(.97)}
+.btn-start:disabled{opacity:.45;cursor:default;transform:none;box-shadow:none}
+.btn-stop{width:100%;padding:12px;border-radius:14px;border:1.5px solid rgba(220,80,60,.28);background:rgba(220,80,60,.07);color:#c0392b;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:8px;display:none}
+.btn-stop:hover{background:rgba(220,80,60,.13);transform:translateY(-1px)}
+
+.hist-card{background:rgba(255,255,255,0.88);border:1.5px solid rgba(255,255,255,0.98);border-radius:22px;padding:18px;width:100%;box-shadow:0 2px 16px rgba(0,0,0,0.06);margin-bottom:20px}
+.hist-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.hist-title{font-size:15px;font-weight:800;color:#222}
+.hist-clear{font-size:11px;color:rgba(200,60,60,.65);font-weight:700;cursor:pointer;background:none;border:none;font-family:'Nunito',sans-serif;padding:0}
+.hist-clear:hover{color:#c0392b}
+.hist-empty{text-align:center;padding:22px 0;color:rgba(0,0,0,.22);font-size:13px;font-weight:700}
+.hist-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.hist-item:last-child{border-bottom:none}
+.hist-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.hi-ok{background:rgba(100,100,100,.1)}
+.hi-inc{background:rgba(232,130,26,.1)}
+.hist-info{flex:1;min-width:0}
+.hist-date{font-size:11px;color:rgba(0,0,0,.35);font-weight:700}
+.hist-dur{font-size:14px;font-weight:800;color:#222}
+.hist-pct{font-size:11px;font-weight:800;padding:2px 8px;border-radius:8px}
+.pct-ok{background:rgba(80,80,80,.1);color:#444}
+.pct-mid{background:rgba(232,130,26,.15);color:#b85e0a}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06)}
+.stat{text-align:center}
+.stat-val{font-size:18px;font-weight:900;color:#555}
+.stat-lbl{font-size:10px;color:rgba(0,0,0,.32);font-weight:700;margin-top:2px}
+.notif-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#fff;border:1.5px solid rgba(0,0,0,.14);border-radius:14px;padding:11px 18px;color:#222;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;z-index:9999;display:flex;align-items:center;gap:8px;animation:slide-in .3s ease;max-width:90vw;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+@keyframes slide-in{from{transform:translateX(-50%) translateY(-20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+
+/* Sección racha IF */
+.racha-card{background:rgba(255,255,255,0.88);border:1.5px solid rgba(255,255,255,0.98);border-radius:22px;padding:18px;width:100%;box-shadow:0 2px 16px rgba(0,0,0,0.06);margin-bottom:20px}
+.racha-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.racha-title{font-size:15px;font-weight:800;color:#222}
+.racha-days-big{text-align:center;margin-bottom:16px}
+.racha-num{font-size:52px;font-weight:900;color:#555;line-height:1;font-variant-numeric:tabular-nums}
+.racha-sub{font-size:12px;color:rgba(0,0,0,.38);font-weight:700;margin-top:2px}
+.racha-setup{display:flex;flex-direction:column;gap:10px}
+.racha-setup p{font-size:13px;color:rgba(0,0,0,.5);font-weight:700;text-align:center}
+.racha-date-row{display:flex;align-items:center;gap:8px}
+.racha-date-row label{font-size:12px;color:rgba(0,0,0,.42);font-weight:700;white-space:nowrap}
+.btn-racha{flex:1;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#777,#444);color:#fff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.btn-racha:hover{transform:translateY(-1px)}
+.btn-racha-reset{font-size:11px;color:rgba(180,60,60,.6);font-weight:700;cursor:pointer;background:none;border:none;font-family:'Nunito',sans-serif;padding:0}
+.btn-racha-reset:hover{color:#c0392b}
+
+/* Timeline de hitos */
+.timeline{position:relative;padding:4px 0 0;margin-top:4px}
+.tl-line{position:absolute;left:17px;top:0;bottom:0;width:2px;background:rgba(0,0,0,.08);border-radius:2px}
+.tl-item{display:flex;align-items:flex-start;gap:12px;padding:8px 0;position:relative}
+.tl-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;position:relative;z-index:1;border:2px solid transparent;transition:all .3s}
+.tl-dot.reached{background:linear-gradient(135deg,#777,#444);border-color:#555;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.tl-dot.pending{background:#f0f0f0;border-color:rgba(0,0,0,.1)}
+.tl-info{flex:1;padding-top:6px}
+.tl-label{font-size:13px;font-weight:800;color:#222;line-height:1.2}
+.tl-label.pending{color:rgba(0,0,0,.35)}
+.tl-date{font-size:11px;color:rgba(0,0,0,.38);font-weight:700;margin-top:2px}
+.tl-congrats{font-size:11px;font-weight:800;color:#555;background:rgba(0,0,0,.05);padding:3px 8px;border-radius:8px;margin-top:3px;display:inline-block}
+</style>
+</head>
+<body>
+
+<div class="tapiz" id="tapiz"></div>
+
+<div class="wrap">
+  <div>
+    <div class="app-title">🦝 AyunoTracker</div>
+    <div class="app-sub">Tu compañero de ayuno intermitente</div>
+  </div>
+
+  <div class="raccoon-icon-area">
+    <div id="bubble" class="bubble-txt" style="display:none"></div>
+    <div class="main-raccoon">🦝</div>
+    <div class="raccoon-mood" id="raccoon-mood">¡Listo para ayunar!</div>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <div id="sbadge" class="badge badge-eat">
+      <div class="dot"></div>
+      <span id="stxt">Sin ayuno activo</span>
+    </div>
+    <div class="big-time" id="btimer">00:00:00</div>
+    <div class="time-lbl" id="tlbl">Configura tu ayuno abajo 👇</div>
+    <div class="track"><div class="fill" id="pfill" style="width:0%"></div></div>
+    <div class="prog-labs"><span>0h</span><span id="pmid">—</span><span id="pend">—</span></div>
+    <div class="metrics">
+      <div class="mbox"><div class="mbox-ico">⏳</div><div class="mbox-val" id="ev">0h 0m</div><div class="mbox-lbl">Tiempo ayunado</div></div>
+      <div class="mbox"><div class="mbox-ico">🏁</div><div class="mbox-val" id="rv">—</div><div class="mbox-lbl">Faltan</div></div>
+    </div>
+    <div style="margin-top:10px;text-align:center;font-size:13px;font-weight:700;color:rgba(0,0,0,.38)">
+      🍽️ Puedes comer a las <span id="eat-time" style="color:#b85e0a;font-weight:900">—</span>
+    </div>
+  </div>
+
+  <div class="ctrl">
+    <div class="sec-lbl">Duración del ayuno</div>
+    <div class="fast-grid">
+      <button class="fopt" data-h="12" onclick="selFast(12)">12h</button>
+      <button class="fopt on" data-h="16" onclick="selFast(16)">16h</button>
+      <button class="fopt" data-h="18" onclick="selFast(18)">18h</button>
+      <button class="fopt" data-h="24" onclick="selFast(24)">24h</button>
+    </div>
+    <div class="sec-lbl">¿A qué hora empezaste?</div>
+    <div class="row">
+      <label>Inicio:</label>
+      <select class="tinput" id="stinput-h" style="flex:0.7"></select>
+      <select class="tinput" id="stinput-m" style="flex:0.7"></select>
+      <select class="tinput" id="stinput-ampm" style="flex:0.6">
+        <option value="AM">AM</option>
+        <option value="PM">PM</option>
+      </select>
+    </div>
+    <div class="notif-row">
+      <span>🔔 Notificaciones del navegador</span>
+      <label class="toggle"><input type="checkbox" id="ntoggle" onchange="toggleNotif()"><span class="stoggle"></span></label>
+    </div>
+    <button class="btn-start" id="bstart" onclick="startFast()">🦝 ¡Iniciar ayuno!</button>
+    <button class="btn-stop" id="bstop" onclick="stopFast(false)">Terminar ayuno</button>
+  </div>
+
+  <div class="hist-card">
+    <div class="hist-header">
+      <div class="hist-title">📋 Historial de ayunos</div>
+      <button class="hist-clear" onclick="clearHist()">Limpiar todo</button>
+    </div>
+    <div id="hist-list"></div>
+    <div class="stats-row" id="stats-row" style="display:none">
+      <div class="stat"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">Ayunos totales</div></div>
+      <div class="stat"><div class="stat-val" id="st-avg">0h</div><div class="stat-lbl">Promedio</div></div>
+      <div class="stat"><div class="stat-val" id="st-streak">0</div><div class="stat-lbl">Días seguidos</div></div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN RACHA IF -->
+  <div class="racha-card">
+    <div class="racha-top">
+      <div class="racha-title">🦝 Mi racha de ayuno IF</div>
+      <button class="btn-racha-reset" id="racha-reset-btn" onclick="resetRacha()" style="display:none">Cambiar fecha</button>
+    </div>
+    <div id="racha-setup">
+      <div class="racha-setup">
+        <p>¿Desde qué fecha empezaste tu hábito de ayuno intermitente?</p>
+        <div class="racha-date-row">
+          <label>Fecha:</label>
+          <input type="date" class="tinput" id="racha-date-input"/>
+        </div>
+        <button class="btn-racha" onclick="saveRacha()">🦝 ¡Guardar mi fecha de inicio!</button>
+      </div>
+    </div>
+    <div id="racha-display" style="display:none">
+      <div class="racha-days-big">
+        <div class="racha-num" id="racha-num">0</div>
+        <div class="racha-sub">días ayunando en intermitente 🎯</div>
+      </div>
+      <div class="timeline" id="timeline">
+        <div class="tl-line"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const tapiz=document.getElementById('tapiz');
+const cols=Math.ceil(window.innerWidth/68)+1,rows=Math.ceil(window.innerHeight/68)+2;
+for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const el=document.createElement('div');el.className='tapiz-raccoon';el.textContent='🦝';el.style.cssText=`left:${c*68-8}px;top:${r*68-8}px;--d:${2.5+Math.random()*3}s;--r:${Math.random()*18-9}deg;animation-delay:${Math.random()*3}s`;tapiz.appendChild(el);}
+
+let fastDur=16,fastStart=null,ticker=null,running=false;
+let notifEnabled=false,notifSent={half:false,done:false};
+let history=[];
+try{history=JSON.parse(localStorage.getItem('ayuno_hist4')||'[]');}catch(e){}
+function setDefTime(){
+  const n=new Date();
+  let h=n.getHours(),m=n.getMinutes();
+  const ampm=h>=12?'PM':'AM';
+  let h12=h%12;if(h12===0)h12=12;
+  // Poblar horas 1-12
+  const selH=document.getElementById('stinput-h');
+  if(!selH.options.length){for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');selH.appendChild(o);}}
+  selH.value=h12;
+  // Poblar minutos 00-59
+  const selM=document.getElementById('stinput-m');
+  if(!selM.options.length){for(let i=0;i<60;i++){const o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');selM.appendChild(o);}}
+  selM.value=m;
+  document.getElementById('stinput-ampm').value=ampm;
+}
+setDefTime();renderHist();
+
+function selFast(h){fastDur=h;document.querySelectorAll('.fopt').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.h)===h));if(running)updateDisp();}
+
+function startFast(){
+  const hVal=parseInt(document.getElementById('stinput-h').value);
+  const mVal=parseInt(document.getElementById('stinput-m').value);
+  const ampm=document.getElementById('stinput-ampm').value;
+  // Convertir a 24h correctamente
+  let h24=hVal;
+  if(ampm==='AM'&&hVal===12) h24=0;
+  else if(ampm==='PM'&&hVal!==12) h24=hVal+12;
+  const now=new Date();
+  // Construir el momento más reciente en que ocurrió esa hora (dentro de las últimas 24h)
+  const candidate=new Date(now);
+  candidate.setHours(h24,mVal,0,0);
+  if(candidate>now) candidate.setDate(candidate.getDate()-1);
+  if((now-candidate)>86400000) candidate.setDate(candidate.getDate()+1);
+  fastStart=candidate;
+
+  running=true;notifSent={half:false,done:false};
+  document.getElementById('bstart').disabled=true;
+  document.getElementById('bstart').textContent='🦝 Ayunando...';
+  document.getElementById('bstop').style.display='block';
+  document.getElementById('pmid').textContent=fastDur/2+'h';
+  document.getElementById('pend').textContent=fastDur+'h';
+  setMood('fast');say('¡Tú puedes! 💪');
+  if(ticker)clearInterval(ticker);
+  ticker=setInterval(updateDisp,1000);updateDisp();
+}
+
+function stopFast(auto){
+  if(!auto&&!confirm('¿Terminar el ayuno?'))return;
+  const elapsed=fastStart?Math.floor((new Date()-fastStart)/1000):0;
+  const total=fastDur*3600,pct=Math.min(Math.round((elapsed/total)*100),100);
+  const eh=Math.floor(elapsed/3600),em=Math.floor((elapsed%3600)/60);
+  if(elapsed>60){
+    const rec={date:new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}),dur:`${eh}h ${em}m`,durH:+(elapsed/3600).toFixed(2),goal:fastDur,pct,ts:Date.now()};
+    history.unshift(rec);if(history.length>30)history=history.slice(0,30);
+    try{localStorage.setItem('ayuno_hist4',JSON.stringify(history));}catch(e){}
+    renderHist();
+  }
+  running=false;clearInterval(ticker);ticker=null;fastStart=null;
+  document.getElementById('btimer').textContent='00:00:00';
+  document.getElementById('tlbl').textContent='Configura tu ayuno abajo 👇';
+  document.getElementById('stxt').textContent='Sin ayuno activo';
+  document.getElementById('sbadge').className='badge badge-eat';
+  document.getElementById('pfill').style.width='0%';
+  document.getElementById('ev').textContent='0h 0m';document.getElementById('rv').textContent='—';
+  document.getElementById('eat-time').textContent='—';
+  document.getElementById('eat-time').style.color='#b85e0a';
+  document.getElementById('eat-time-row').style.display='none';
+  document.getElementById('eat-time').textContent='—';
+  document.getElementById('pmid').textContent='—';document.getElementById('pend').textContent='—';
+  document.getElementById('bstart').disabled=false;
+  document.getElementById('bstart').textContent='🦝 ¡Iniciar ayuno!';
+  document.getElementById('bstop').style.display='none';
+  setMood('eat');if(!auto)say('¡A comer rico! 🍊');setDefTime();renderHist();
+}
+
+function updateDisp(){
+  if(!fastStart)return;
+  const now=new Date(),el=Math.floor((now-fastStart)/1000),tot=fastDur*3600,rem=tot-el;
+  const eh=Math.floor(el/3600),em=Math.floor((el%3600)/60),es=el%60;
+  document.getElementById('btimer').textContent=`${String(eh).padStart(2,'0')}:${String(em).padStart(2,'0')}:${String(es).padStart(2,'0')}`;
+  document.getElementById('ev').textContent=`${eh}h ${em}m`;
+  document.getElementById('pfill').style.width=Math.min((el/tot)*100,100)+'%';
+  // Calcular hora en que puede comer
+  const eatAt=new Date(fastStart.getTime()+tot*1000);
+  let eH=eatAt.getHours(),eM=eatAt.getMinutes();
+  const eAmpm=eH>=12?'PM':'AM';let eH12=eH%12;if(eH12===0)eH12=12;
+  document.getElementById('eat-time').textContent=`${eH12}:${String(eM).padStart(2,'0')} ${eAmpm}`;
+
+  if(rem>0){
+    const rh=Math.floor(rem/3600),rm=Math.floor((rem%3600)/60);
+    document.getElementById('rv').textContent=`${rh}h ${rm}m`;
+    document.getElementById('tlbl').textContent=`Meta: ${fastDur}h · ¡Sigue adelante!`;
+    document.getElementById('stxt').textContent=`Ayunando · ${fastDur}h`;
+    document.getElementById('sbadge').className='badge badge-fast';
+    setMood('fast');
+    if(el>=tot/2&&!notifSent.half){notifSent.half=true;sendNotif('¡Vas a la mitad! 🦝','Llevas '+eh+'h de '+fastDur+'h. ¡Sigue!');}
+  } else {
+    document.getElementById('rv').textContent='¡Listo! 🎉';
+    document.getElementById('tlbl').textContent=`¡Completaste tu ayuno de ${fastDur}h! 🎉`;
+    document.getElementById('stxt').textContent='¡Meta lograda! 🎉';
+    setMood('done');
+    if(!notifSent.done){notifSent.done=true;sendNotif('¡Ayuno completado! 🎉','Lograste '+fastDur+'h. ¡El mapache está orgulloso!');say('¡Lo lograste! 🌟');}
+  }
+}
+
+function setMood(m){
+  const moods={fast:'¡Aguantando el hambre! 😤',eat:'¡Listo para ayunar!',done:'¡Meta cumplida! 🎉'};
+  document.getElementById('raccoon-mood').textContent=moods[m];
+}
+
+let bubT;
+function say(msg){const el=document.getElementById('bubble');el.textContent=msg;el.style.display='block';clearTimeout(bubT);bubT=setTimeout(()=>el.style.display='none',2800);}
+
+function toggleNotif(){
+  const cb=document.getElementById('ntoggle');
+  if(cb.checked){
+    if(!('Notification' in window)){showToast('🔕 Tu navegador no soporta notificaciones');cb.checked=false;return;}
+    Notification.requestPermission().then(p=>{if(p==='granted'){notifEnabled=true;showToast('🔔 ¡Notificaciones activadas!');}else{notifEnabled=false;cb.checked=false;showToast('🔕 Permiso denegado.');}});
+  } else{notifEnabled=false;showToast('🔕 Notificaciones desactivadas');}
+}
+function sendNotif(title,body){if(notifEnabled&&Notification.permission==='granted')new Notification(title,{body});showToast('🔔 '+title);}
+let toastT;
+function showToast(msg){let t=document.querySelector('.notif-toast');if(!t){t=document.createElement('div');t.className='notif-toast';document.body.appendChild(t);}t.textContent=msg;t.style.display='flex';clearTimeout(toastT);toastT=setTimeout(()=>{if(t)t.style.display='none';},3200);}
+
+function renderHist(){
+  const el=document.getElementById('hist-list'),sr=document.getElementById('stats-row');
+  if(!history.length){el.innerHTML='<div class="hist-empty">🦝 Aún no hay ayunos registrados</div>';sr.style.display='none';return;}
+  sr.style.display='grid';
+  el.innerHTML=history.slice(0,8).map(r=>`<div class="hist-item"><div class="hist-icon ${r.pct>=100?'hi-ok':'hi-inc'}">${r.pct>=100?'✅':'⏳'}</div><div class="hist-info"><div class="hist-date">${r.date} · Meta: ${r.goal}h</div><div class="hist-dur">${r.dur} ayunado</div></div><span class="hist-pct ${r.pct>=100?'pct-ok':'pct-mid'}">${r.pct}%</span></div>`).join('');
+  const tot=history.length,avg=history.reduce((s,r)=>s+r.durH,0)/tot,ah=Math.floor(avg),am=Math.round((avg-ah)*60);
+  document.getElementById('st-total').textContent=tot;
+  document.getElementById('st-avg').textContent=ah+'h'+(am?` ${am}m`:'');
+  document.getElementById('st-streak').textContent=calcStreak();
+}
+function calcStreak(){if(!history.length)return 0;const days=[...new Set(history.map(r=>r.date))];let s=1;for(let i=0;i<days.length-1;i++){if(Math.round((new Date(days[i])-new Date(days[i+1]))/(864e5))===1)s++;else break;}return s;}
+function clearHist(){if(!history.length)return;if(!confirm('¿Borrar todo el historial?'))return;history=[];try{localStorage.removeItem('ayuno_hist4');}catch(e){}renderHist();say('Historial borrado 🗑️');}
+
+// ── RACHA IF ──
+const HITOS=[
+  {days:15,  label:'15 días',   emoji:'🌱', msg:'¡Increíble arranque! Ya tienes 2 semanas de hábito.'},
+  {days:30,  label:'1 mes',     emoji:'⭐', msg:'¡Un mes completo! El hábito ya está en tu rutina.'},
+  {days:60,  label:'2 meses',   emoji:'🔥', msg:'¡Dos meses! Tu cuerpo ya lo agradece.'},
+  {days:90,  label:'3 meses',   emoji:'💪', msg:'¡90 días! Eres un/a pro del ayuno intermitente.'},
+  {days:180, label:'6 meses',   emoji:'🏆', msg:'¡Medio año! Eso es disciplina de verdad.'},
+  {days:365, label:'1 año',     emoji:'👑', msg:'¡UN AÑO COMPLETO! Eres una leyenda del IF. 🎉'},
+];
+
+let rachaStart=null;
+try{const s=localStorage.getItem('racha_start');if(s)rachaStart=new Date(s);}catch(e){}
+
+function saveRacha(){
+  const v=document.getElementById('racha-date-input').value;
+  if(!v){showToast('🦝 Selecciona una fecha');return;}
+  rachaStart=new Date(v+'T00:00:00');
+  try{localStorage.setItem('racha_start',rachaStart.toISOString());}catch(e){}
+  renderRacha();
+}
+function resetRacha(){
+  if(!confirm('¿Cambiar la fecha de inicio de tu racha?'))return;
+  rachaStart=null;
+  try{localStorage.removeItem('racha_start');}catch(e){}
+  document.getElementById('racha-setup').style.display='block';
+  document.getElementById('racha-display').style.display='none';
+  document.getElementById('racha-reset-btn').style.display='none';
+  // poner fecha de hoy por default
+  const hoy=new Date();
+  document.getElementById('racha-date-input').value=hoy.toISOString().slice(0,10);
+}
+function renderRacha(){
+  if(!rachaStart){
+    // poner fecha de hoy por default en el input
+    const hoy=new Date();
+    document.getElementById('racha-date-input').value=hoy.toISOString().slice(0,10);
+    return;
+  }
+  document.getElementById('racha-setup').style.display='none';
+  document.getElementById('racha-display').style.display='block';
+  document.getElementById('racha-reset-btn').style.display='block';
+
+  const now=new Date();
+  const dias=Math.floor((now-rachaStart)/86400000);
+  document.getElementById('racha-num').textContent=dias;
+
+  // Renderizar timeline
+  const tl=document.getElementById('timeline');
+  // Conservar la línea vertical
+  tl.innerHTML='<div class="tl-line"></div>';
+  HITOS.forEach(h=>{
+    const reached=dias>=h.days;
+    const hitaDate=new Date(rachaStart.getTime()+h.days*86400000);
+    const dateStr=hitaDate.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+    const item=document.createElement('div');
+    item.className='tl-item';
+    item.innerHTML=`
+      <div class="tl-dot ${reached?'reached':'pending'}">${reached?h.emoji:'⬜'}</div>
+      <div class="tl-info">
+        <div class="tl-label ${reached?'':'pending'}">${h.label}</div>
+        <div class="tl-date">${reached?'Logrado el':'Meta: '} ${dateStr}</div>
+        ${reached?`<span class="tl-congrats">${h.msg}</span>`:''}
+      </div>`;
+    tl.appendChild(item);
+  });
+}
+renderRacha();
+</script>
+</body>
+</html>
