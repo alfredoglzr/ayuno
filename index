@@ -1,445 +1,821 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🦝 AyunoTracker</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Nunito',sans-serif;background:#e2e2e2;min-height:100vh;display:flex;justify-content:center;padding:20px;position:relative;overflow-x:hidden}
-
-.tapiz{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
-.tapiz-raccoon{position:absolute;font-size:26px;opacity:0.09;animation:float-bg var(--d) ease-in-out infinite;animation-delay:var(--dl)}
-@keyframes float-bg{0%,100%{transform:translateY(0) rotate(var(--r))}50%{transform:translateY(-7px) rotate(var(--r))}}
-
-.wrap{width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;z-index:1}
-
-.app-title{font-size:28px;font-weight:900;background:linear-gradient(90deg,#444,#777,#e8821a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center}
-.app-sub{font-size:12px;color:rgba(0,0,0,0.38);text-align:center;margin-top:2px;font-weight:700}
-
-.raccoon-icon-area{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
-.main-raccoon{font-size:72px;line-height:1;animation:bounce-main 2.5s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.12))}
-@keyframes bounce-main{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.05)}}
-.raccoon-mood{font-size:13px;font-weight:800;color:#555;background:rgba(255,255,255,0.88);padding:3px 12px;border-radius:20px;border:1.5px solid rgba(0,0,0,0.1)}
-.bubble-txt{position:absolute;top:-4px;right:-30px;background:linear-gradient(135deg,#666,#999);color:#fff;font-size:11px;font-weight:800;padding:5px 11px;border-radius:14px 14px 14px 2px;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,0.15);animation:pop .3s ease}
-@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
-
-.card{background:rgba(255,255,255,0.88);border:1.5px solid rgba(255,255,255,0.98);border-radius:24px;padding:20px;width:100%;box-shadow:0 2px 16px rgba(0,0,0,0.07)}
-.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 13px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
-.badge-fast{background:rgba(100,100,100,0.12);color:#444;border:1.5px solid rgba(100,100,100,0.22)}
-.badge-eat{background:rgba(232,130,26,0.12);color:#b85e0a;border:1.5px solid rgba(232,130,26,0.28)}
-.dot{width:6px;height:6px;border-radius:50%;animation:pulse 1.5s ease-in-out infinite}
-.badge-fast .dot{background:#888}
-.badge-eat .dot{background:#e8821a}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
-.big-time{font-size:52px;font-weight:900;color:#222;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums;text-align:center}
-.time-lbl{font-size:12px;color:rgba(0,0,0,.4);font-weight:700;margin-bottom:18px;text-align:center}
-.track{width:100%;height:13px;background:rgba(0,0,0,.08);border-radius:20px;overflow:hidden;margin-bottom:6px}
-.fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#aaa,#555,#e8821a);background-size:200%;animation:shine 2.5s linear infinite;transition:width 1s ease}
-@keyframes shine{0%{background-position:0%}100%{background-position:200%}}
-.prog-labs{display:flex;justify-content:space-between;margin-bottom:16px}
-.prog-labs span{font-size:11px;color:rgba(0,0,0,.3);font-weight:700}
-.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mbox{background:rgba(0,0,0,.04);border-radius:14px;padding:11px;border:1.5px solid rgba(0,0,0,.07);text-align:center}
-.mbox-ico{font-size:20px;margin-bottom:3px}
-.mbox-val{font-size:20px;font-weight:800;color:#222;font-variant-numeric:tabular-nums}
-.mbox-lbl{font-size:10px;color:rgba(0,0,0,.38);font-weight:700;margin-top:2px}
-
-.ctrl{background:rgba(255,255,255,0.88);border:1.5px solid rgba(255,255,255,0.98);border-radius:22px;padding:18px;width:100%;box-shadow:0 2px 16px rgba(0,0,0,0.06)}
-.sec-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(0,0,0,.3);margin-bottom:10px}
-.fast-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px}
-.fopt{padding:8px 2px;border-radius:10px;border:1.5px solid rgba(0,0,0,.12);background:rgba(0,0,0,.03);color:rgba(0,0,0,.45);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;text-align:center}
-.fopt:hover{border-color:#888;color:#444;background:rgba(0,0,0,.07)}
-.fopt.on{border-color:#555;background:rgba(0,0,0,.1);color:#333}
-.row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-.row label{font-size:12px;color:rgba(0,0,0,.42);font-weight:700;white-space:nowrap}
-.tinput{flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid rgba(0,0,0,.12);background:rgba(255,255,255,.92);color:#222;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;outline:none;transition:border-color .2s}
-.tinput:focus{border-color:#666}
-.notif-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(0,0,0,.06);margin-top:2px;margin-bottom:10px}
-.notif-row span{font-size:12px;color:rgba(0,0,0,.45);font-weight:700}
-.toggle{position:relative;width:38px;height:22px;cursor:pointer}
-.toggle input{opacity:0;width:0;height:0}
-.stoggle{position:absolute;inset:0;background:rgba(0,0,0,.18);border-radius:22px;transition:.3s}
-.stoggle:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-input:checked+.stoggle{background:linear-gradient(90deg,#888,#555)}
-input:checked+.stoggle:before{transform:translateX(16px)}
-.btn-start{width:100%;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#777,#444);color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(0,0,0,.18)}
-.btn-start:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.22)}
-.btn-start:active{transform:scale(.97)}
-.btn-start:disabled{opacity:.45;cursor:default;transform:none;box-shadow:none}
-.btn-stop{width:100%;padding:12px;border-radius:14px;border:1.5px solid rgba(220,80,60,.28);background:rgba(220,80,60,.07);color:#c0392b;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:8px;display:none}
-.btn-stop:hover{background:rgba(220,80,60,.13);transform:translateY(-1px)}
-
-.hist-card{background:rgba(255,255,255,0.88);border:1.5px solid rgba(255,255,255,0.98);border-radius:22px;padding:18px;width:100%;box-shadow:0 2px 16px rgba(0,0,0,0.06);margin-bottom:20px}
-.hist-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.hist-title{font-size:15px;font-weight:800;color:#222}
-.hist-clear{font-size:11px;color:rgba(200,60,60,.65);font-weight:700;cursor:pointer;background:none;border:none;font-family:'Nunito',sans-serif;padding:0}
-.hist-clear:hover{color:#c0392b}
-.hist-empty{text-align:center;padding:22px 0;color:rgba(0,0,0,.22);font-size:13px;font-weight:700}
-.hist-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.05)}
-.hist-item:last-child{border-bottom:none}
-.hist-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.hi-ok{background:rgba(100,100,100,.1)}
-.hi-inc{background:rgba(232,130,26,.1)}
-.hist-info{flex:1;min-width:0}
-.hist-date{font-size:11px;color:rgba(0,0,0,.35);font-weight:700}
-.hist-dur{font-size:14px;font-weight:800;color:#222}
-.hist-pct{font-size:11px;font-weight:800;padding:2px 8px;border-radius:8px}
-.pct-ok{background:rgba(80,80,80,.1);color:#444}
-.pct-mid{background:rgba(232,130,26,.15);color:#b85e0a}
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06)}
-.stat{text-align:center}
-.stat-val{font-size:18px;font-weight:900;color:#555}
-.stat-lbl{font-size:10px;color:rgba(0,0,0,.32);font-weight:700;margin-top:2px}
-.notif-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#fff;border:1.5px solid rgba(0,0,0,.14);border-radius:14px;padding:11px 18px;color:#222;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;z-index:9999;display:flex;align-items:center;gap:8px;animation:slide-in .3s ease;max-width:90vw;box-shadow:0 4px 16px rgba(0,0,0,.1)}
-@keyframes slide-in{from{transform:translateX(-50%) translateY(-20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-
-/* Sección racha IF */
-.racha-card{background:rgba(255,255,255,0.88);border:1.5px solid rgba(255,255,255,0.98);border-radius:22px;padding:18px;width:100%;box-shadow:0 2px 16px rgba(0,0,0,0.06);margin-bottom:20px}
-.racha-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.racha-title{font-size:15px;font-weight:800;color:#222}
-.racha-days-big{text-align:center;margin-bottom:16px}
-.racha-num{font-size:52px;font-weight:900;color:#555;line-height:1;font-variant-numeric:tabular-nums}
-.racha-sub{font-size:12px;color:rgba(0,0,0,.38);font-weight:700;margin-top:2px}
-.racha-setup{display:flex;flex-direction:column;gap:10px}
-.racha-setup p{font-size:13px;color:rgba(0,0,0,.5);font-weight:700;text-align:center}
-.racha-date-row{display:flex;align-items:center;gap:8px}
-.racha-date-row label{font-size:12px;color:rgba(0,0,0,.42);font-weight:700;white-space:nowrap}
-.btn-racha{flex:1;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#777,#444);color:#fff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 3px 10px rgba(0,0,0,.15)}
-.btn-racha:hover{transform:translateY(-1px)}
-.btn-racha-reset{font-size:11px;color:rgba(180,60,60,.6);font-weight:700;cursor:pointer;background:none;border:none;font-family:'Nunito',sans-serif;padding:0}
-.btn-racha-reset:hover{color:#c0392b}
-
-/* Timeline de hitos */
-.timeline{position:relative;padding:4px 0 0;margin-top:4px}
-.tl-line{position:absolute;left:17px;top:0;bottom:0;width:2px;background:rgba(0,0,0,.08);border-radius:2px}
-.tl-item{display:flex;align-items:flex-start;gap:12px;padding:8px 0;position:relative}
-.tl-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;position:relative;z-index:1;border:2px solid transparent;transition:all .3s}
-.tl-dot.reached{background:linear-gradient(135deg,#777,#444);border-color:#555;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.tl-dot.pending{background:#f0f0f0;border-color:rgba(0,0,0,.1)}
-.tl-info{flex:1;padding-top:6px}
-.tl-label{font-size:13px;font-weight:800;color:#222;line-height:1.2}
-.tl-label.pending{color:rgba(0,0,0,.35)}
-.tl-date{font-size:11px;color:rgba(0,0,0,.38);font-weight:700;margin-top:2px}
-.tl-congrats{font-size:11px;font-weight:800;color:#555;background:rgba(0,0,0,.05);padding:3px 8px;border-radius:8px;margin-top:3px;display:inline-block}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>🦝 AyunoTracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:#e0e0e0;min-height:100vh;padding:18px 18px 56px;position:relative;overflow-x:hidden;display:flex;flex-direction:column;align-items:center}
+    #tapiz{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+    .t-rc{position:absolute;font-size:26px;opacity:.08;animation:floatBg var(--d) ease-in-out var(--dl) infinite}
+    @keyframes floatBg{0%,100%{transform:translateY(0) rotate(var(--r))}50%{transform:translateY(-8px) rotate(var(--r))}}
+    .fi{position:fixed;font-size:var(--sz,30px);opacity:var(--op,.12);pointer-events:none;z-index:1;animation:floatIcon var(--d,4s) ease-in-out var(--dl,0s) infinite}
+    @keyframes floatIcon{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-12px) rotate(var(--r,4deg))}}
+    .wrap{position:relative;z-index:2;width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px}
+    .top-bar{display:flex;align-items:center;gap:10px;padding:2px 0 6px}
+    .btn-back{background:rgba(255,255,255,.78);border:1.5px solid rgba(255,255,255,.95);border-radius:10px;padding:7px 12px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:rgba(0,0,0,.48);cursor:pointer;transition:all .2s}
+    .btn-back:hover{background:rgba(255,255,255,.97);color:#333}
+    .profile-chip{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.78);border:1.5px solid rgba(255,255,255,.95);border-radius:14px;padding:7px 14px}
+    .profile-chip-emoji{font-size:22px}.profile-chip-name{font-size:15px;font-weight:900;color:#222}
+    .btn-icon{background:rgba(255,255,255,.78);border:1.5px solid rgba(255,255,255,.95);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:all .2s}
+    .btn-icon:hover{background:rgba(255,255,255,.97)}
+    .raccoon-area{display:flex;flex-direction:column;align-items:center;gap:5px}
+    .raccoon-big{font-size:70px;line-height:1;filter:drop-shadow(0 5px 12px rgba(0,0,0,.14));animation:bounceBig 2.8s ease-in-out infinite}
+    @keyframes bounceBig{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.05)}}
+    .mood-chip{font-size:13px;font-weight:800;color:#555;background:rgba(255,255,255,.88);padding:4px 14px;border-radius:20px;border:1.5px solid rgba(0,0,0,.09)}
+    .card{background:rgba(255,255,255,.9);border:1.5px solid rgba(255,255,255,.98);border-radius:24px;padding:20px;box-shadow:0 3px 18px rgba(0,0,0,.07)}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 13px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+    .badge-fast{background:rgba(80,80,80,.1);color:#444;border:1.5px solid rgba(80,80,80,.18)}
+    .badge-idle{background:rgba(232,130,26,.11);color:#b85e0a;border:1.5px solid rgba(232,130,26,.25)}
+    .badge-done{background:rgba(80,170,80,.12);color:#2d7a2d;border:1.5px solid rgba(80,170,80,.25)}
+    .dot{width:6px;height:6px;border-radius:50%;animation:pulseDot 1.5s ease-in-out infinite}
+    @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.6)}}
+    .big-timer{font-size:56px;font-weight:900;color:#1a1a1a;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums;text-align:center}
+    .timer-lbl{font-size:12px;color:rgba(0,0,0,.38);font-weight:700;margin-top:6px;margin-bottom:20px;text-align:center}
+    .prog-track{width:100%;height:14px;background:rgba(0,0,0,.07);border-radius:20px;overflow:hidden;margin-bottom:5px}
+    .prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#b0b0b0,#606060,#c87820);background-size:200%;animation:shine 2.5s linear infinite;transition:width 1s ease}
+    @keyframes shine{0%{background-position:0%}100%{background-position:200%}}
+    .prog-labs{display:flex;justify-content:space-between;margin-bottom:18px;font-size:11px;color:rgba(0,0,0,.3);font-weight:700}
+    .metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+    .mbox{background:rgba(0,0,0,.04);border-radius:14px;padding:12px;border:1.5px solid rgba(0,0,0,.07);text-align:center}
+    .mbox-ico{font-size:20px;margin-bottom:4px}
+    .mbox-val{font-size:20px;font-weight:800;color:#1a1a1a;font-variant-numeric:tabular-nums;line-height:1.1}
+    .mbox-lbl{font-size:10px;color:rgba(0,0,0,.35);font-weight:700;margin-top:3px}
+    .eat-line{text-align:center;font-size:13px;font-weight:700;color:rgba(0,0,0,.36);padding:4px 0}
+    .eat-line span{color:#b85e0a;font-weight:900}
+    .sec-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(0,0,0,.28);margin-bottom:10px}
+    .fast-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+    .fopt{padding:9px 2px;border-radius:11px;border:1.5px solid rgba(0,0,0,.11);background:rgba(0,0,0,.03);color:rgba(0,0,0,.42);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;text-align:center;transition:all .2s}
+    .fopt:hover{border-color:#888;color:#333;background:rgba(0,0,0,.07)}
+    .fopt.on{border-color:#444;background:rgba(0,0,0,.1);color:#222}
+    .row{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+    .row label{font-size:12px;color:rgba(0,0,0,.4);font-weight:700;white-space:nowrap}
+    .time-input{flex:1;padding:10px 13px;border-radius:11px;border:1.5px solid rgba(0,0,0,.11);background:rgba(255,255,255,.88);color:#222;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;outline:none;transition:all .2s}
+    .time-input:focus{border-color:#888;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.05)}
+    .notif-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(0,0,0,.06);margin-bottom:12px}
+    .notif-row span{font-size:12px;color:rgba(0,0,0,.42);font-weight:700}
+    .toggle-track{width:38px;height:22px;border-radius:22px;position:relative;cursor:pointer;transition:.3s}
+    .toggle-thumb{position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .btn-start{width:100%;padding:14px;border-radius:16px;border:none;background:linear-gradient(135deg,#666,#222);color:#fff;font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 18px rgba(0,0,0,.22);transition:all .2s}
+    .btn-start:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.28)}
+    .btn-start:active{transform:scale(.97)}
+    .btn-stop{width:100%;padding:13px;border-radius:16px;border:1.5px solid rgba(220,60,60,.28);background:rgba(220,60,60,.07);color:#c0392b;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s}
+    .btn-stop:hover{background:rgba(220,60,60,.13);transform:translateY(-1px)}
+    .hist-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .hist-title{font-size:15px;font-weight:800;color:#1a1a1a}
+    .btn-link{font-size:11px;color:rgba(200,50,50,.65);font-weight:700;cursor:pointer;background:none;border:none;font-family:'Nunito',sans-serif;padding:0}
+    .btn-link:hover{color:#c0392b}
+    .hist-empty{text-align:center;padding:22px 0;color:rgba(0,0,0,.2);font-size:13px;font-weight:700}
+    .hist-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+    .hist-item:last-child{border-bottom:none}
+    .hist-icon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .hi-ok{background:rgba(80,80,80,.1)}.hi-inc{background:rgba(232,130,26,.1)}
+    .hist-pct{font-size:11px;font-weight:800;padding:3px 9px;border-radius:8px}
+    .pct-ok{background:rgba(80,80,80,.1);color:#444}.pct-inc{background:rgba(232,130,26,.14);color:#b85e0a}
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06)}
+    .stat-val{font-size:18px;font-weight:900;color:#555;text-align:center}
+    .stat-lbl{font-size:10px;color:rgba(0,0,0,.3);font-weight:700;margin-top:2px;text-align:center}
+    .racha-days{font-size:54px;font-weight:900;color:#555;line-height:1;font-variant-numeric:tabular-nums;text-align:center}
+    .racha-sub{font-size:12px;color:rgba(0,0,0,.36);font-weight:700;text-align:center;margin-top:4px;margin-bottom:22px}
+    .timeline{position:relative;padding-left:4px}
+    .tl-line{position:absolute;left:17px;top:0;bottom:0;width:2px;background:rgba(0,0,0,.08);border-radius:2px}
+    .milestone{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+    .milestone:last-child{margin-bottom:0}
+    .ml-icon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;z-index:1}
+    .ml-icon.reached{background:rgba(80,80,80,.12);border:1.5px solid rgba(80,80,80,.2)}
+    .ml-icon.locked{background:rgba(0,0,0,.04);border:1.5px solid rgba(0,0,0,.07)}
+    .ml-label{font-size:13px;font-weight:800}.ml-date{font-size:11px;color:rgba(0,0,0,.35);font-weight:700}
+    .racha-setup p{font-size:13px;color:rgba(0,0,0,.42);font-weight:700;text-align:center;margin-bottom:14px}
+    /* Banner almacenamiento */
+    .storage-banner{background:rgba(255,255,255,.82);border:1.5px solid rgba(255,255,255,.95);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+    .storage-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .storage-dot.ok{background:#5ab858;box-shadow:0 0 0 3px rgba(90,184,88,.2)}
+    .storage-dot.warn{background:#e8821a;box-shadow:0 0 0 3px rgba(232,130,26,.2)}
+    .storage-info{flex:1;font-size:11px;font-weight:700;color:rgba(0,0,0,.45);line-height:1.4}
+    .storage-info strong{color:#333;font-size:12px}
+    .storage-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .btn-xs{font-size:11px;font-weight:800;padding:5px 10px;border-radius:8px;border:1.5px solid rgba(0,0,0,.12);background:rgba(255,255,255,.8);cursor:pointer;font-family:'Nunito',sans-serif;color:rgba(0,0,0,.5);white-space:nowrap;transition:all .2s}
+    .btn-xs:hover{background:#fff;color:#222}
+    .btn-xs.primary{background:linear-gradient(135deg,#666,#333);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+    .btn-xs.primary:hover{transform:translateY(-1px)}
+    /* Modal celebración */
+    .celebrate-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);animation:fadeIn .3s ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .celebrate-modal{background:#fff;border-radius:28px;padding:32px 24px;width:100%;max-width:360px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.2);animation:scaleIn .3s ease}
+    @keyframes scaleIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+    .cel-icon{font-size:64px;margin-bottom:12px;display:block}
+    .cel-title{font-size:22px;font-weight:900;color:#1a1a1a;margin-bottom:6px}
+    .cel-sub{font-size:14px;font-weight:700;color:rgba(0,0,0,.45);margin-bottom:12px;line-height:1.5}
+    .cel-note{font-size:11px;font-weight:700;color:rgba(0,0,0,.35);background:rgba(0,0,0,.04);border-radius:10px;padding:10px 12px;margin-bottom:20px;line-height:1.6;text-align:left}
+    .cel-note strong{color:rgba(0,0,0,.5)}
+    .btn-celebrate{width:100%;padding:14px;border-radius:16px;border:none;background:linear-gradient(135deg,#666,#222);color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+    /* Toast */
+    #toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#fff;border:1.5px solid rgba(0,0,0,.11);border-radius:14px;padding:11px 20px;font-size:13px;font-weight:700;color:#222;z-index:9999;box-shadow:0 4px 18px rgba(0,0,0,.1);display:none;white-space:nowrap;animation:slideIn .3s ease}
+    @keyframes slideIn{from{transform:translateX(-50%) translateY(-18px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+    .card.fasting{border-top:3px solid #888}
+    .card.done{border-top:3px solid #5ab858}
+    #file-import{display:none}
+    /* ── Agua v2 ── */
+    .water-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+    .water-lbl-sm{font-size:12px;font-weight:700;color:rgba(0,0,0,.38);margin-bottom:3px}
+    .water-ml-num{font-size:46px;font-weight:900;color:#111;line-height:1;font-variant-numeric:tabular-nums}
+    .water-ml-unit{font-size:17px;font-weight:700;color:rgba(0,0,0,.38)}
+    .water-ring-btn{position:relative;width:60px;height:60px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:transform .2s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+    .water-ring-btn:hover{transform:scale(1.1)}
+    .water-ring-btn:active{transform:scale(.9)}
+    .water-ring-plus{position:absolute;font-size:22px;font-weight:900;color:#3b82f6;pointer-events:none;line-height:1}
+    .water-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;padding:0 2px}
+    .water-gi{display:flex;align-items:center;justify-content:center;transition:transform .18s}
+    .water-gi.filled{cursor:pointer}
+    .water-gi.filled:active{transform:scale(.88)}
+    .water-gi.is-next{cursor:pointer}
+    .water-gi.is-next:hover svg{filter:drop-shadow(0 3px 8px rgba(59,130,246,.4))}
+    .water-msg{text-align:center;font-size:12px;font-weight:700;color:rgba(0,0,0,.36);background:rgba(59,130,246,.06);border-radius:12px;padding:7px 14px}
+    .water-cooldown{display:flex;align-items:center;gap:10px;background:rgba(249,115,22,.08);border:1.5px solid rgba(249,115,22,.22);border-radius:14px;padding:10px 14px;margin-bottom:14px;animation:cdFadeIn .35s ease}
+    @keyframes cdFadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+    .water-cooldown-ico{font-size:20px;flex-shrink:0}
+    .water-cooldown-body{flex:1}
+    .water-cooldown-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#c05600;margin-bottom:1px}
+    .water-cooldown-time{font-size:22px;font-weight:900;color:#ea580c;font-variant-numeric:tabular-nums;line-height:1}
+    .water-cooldown-sub{font-size:10px;font-weight:700;color:rgba(200,86,0,.6);margin-top:1px}
+    .water-ring-btn.cd-off{opacity:.38;cursor:not-allowed;pointer-events:none}
+    .water-ring-btn.cd-off:hover{transform:none}
+    /* ── Estados de ánimo ── */
+    .raccoon-area{transition:all .5s;border-radius:20px;padding:6px 12px}
+    .raccoon-wrap-outer{position:relative;display:flex;align-items:center;justify-content:center}
+    .raccoon-deco-item{position:absolute;font-size:20px;pointer-events:none}
+    @keyframes floatDeco{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.15)}}
+    .raccoon-area.ma-motivado{background:rgba(255,165,0,.1)}
+    .raccoon-area.ma-ansioso{background:rgba(91,141,217,.1)}
+    .mood-selector-card{display:flex;flex-direction:column;align-items:center;gap:8px}
+    .mood-selector-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.9px;color:rgba(0,0,0,.3)}
+    .mood-btns{display:flex;gap:8px;justify-content:center}
+    .mood-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 13px;border-radius:16px;border:2px solid rgba(0,0,0,.08);background:rgba(0,0,0,.04);cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transparent}
+    .mood-btn:hover{transform:translateY(-3px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+    .mood-btn:active{transform:scale(.92)}
+    .mood-face{line-height:1;display:flex;align-items:center;justify-content:center}
+    .mood-lbl-txt{font-size:10px;font-weight:800;color:rgba(0,0,0,.38)}
+    .mood-btn.on-0{border-color:#f59e0b;background:rgba(245,158,11,.13)}
+    .mood-btn.on-0 .mood-lbl-txt{color:#b45309}
+    .mood-btn.on-1{border-color:#999;background:rgba(0,0,0,.09)}
+    .mood-btn.on-1 .mood-lbl-txt{color:#555}
+    .mood-btn.on-2{border-color:#5b8dd9;background:rgba(91,141,217,.13)}
+    .mood-btn.on-2 .mood-lbl-txt{color:#3a6bb5}
+  </style>
 </head>
 <body>
-
-<div class="tapiz" id="tapiz"></div>
-
+<div id="tapiz"></div>
+<div id="toast"></div>
+<div class="fi" style="top:3%;left:2%;--sz:38px;--op:.14;--d:3.8s;--dl:0s;--r:-8deg">🦝</div>
+<div class="fi" style="top:5%;right:3%;--sz:28px;--op:.11;--d:4.5s;--dl:1s;--r:6deg">⏳</div>
+<div class="fi" style="bottom:18%;left:3%;--sz:30px;--op:.11;--d:5s;--dl:1.5s;--r:10deg">🍽️</div>
+<div class="fi" style="bottom:12%;right:4%;--sz:26px;--op:.10;--d:4.2s;--dl:.5s;--r:-10deg">💧</div>
+<div class="fi" style="top:48%;left:1%;--sz:22px;--op:.09;--d:6s;--dl:2s;--r:12deg">🏁</div>
+<input type="file" id="file-import" accept=".json" onchange="importFromFile(event)">
 <div class="wrap">
-  <div>
-    <div class="app-title">🦝 AyunoTracker</div>
-    <div class="app-sub">Tu compañero de ayuno intermitente</div>
-  </div>
-
-  <div class="raccoon-icon-area">
-    <div id="bubble" class="bubble-txt" style="display:none"></div>
-    <div class="main-raccoon">🦝</div>
-    <div class="raccoon-mood" id="raccoon-mood">¡Listo para ayunar!</div>
-  </div>
-
-  <div class="card" style="text-align:center">
-    <div id="sbadge" class="badge badge-eat">
-      <div class="dot"></div>
-      <span id="stxt">Sin ayuno activo</span>
+  <div class="top-bar">
+    <button class="btn-back" onclick="window.location.href='perfiles.html'">← Perfiles</button>
+    <div class="profile-chip">
+      <span class="profile-chip-emoji" id="profile-emoji">🌻</span>
+      <span class="profile-chip-name" id="profile-name">Mi perfil</span>
     </div>
-    <div class="big-time" id="btimer">00:00:00</div>
-    <div class="time-lbl" id="tlbl">Configura tu ayuno abajo 👇</div>
-    <div class="track"><div class="fill" id="pfill" style="width:0%"></div></div>
-    <div class="prog-labs"><span>0h</span><span id="pmid">—</span><span id="pend">—</span></div>
+    <div class="btn-icon" onclick="showToast('⚙️ Ajustes próximamente')">⚙️</div>
+  </div>
+  <div class="raccoon-area" id="raccoon-area">
+    <div class="raccoon-wrap-outer">
+      <div class="raccoon-big">🦝</div>
+      <div id="raccoon-decos" style="position:absolute;inset:-24px;pointer-events:none;overflow:visible"></div>
+    </div>
+    <div class="mood-chip" id="mood-chip">¡Listo para ayunar!</div>
+  </div>
+  <!-- Selector de estado de ánimo -->
+  <div class="card" style="padding:12px 16px">
+    <div class="mood-selector-card">
+      <div class="mood-selector-lbl">¿Cómo te sientes hoy?</div>
+      <div class="mood-btns" id="mood-btns-wrap"></div>
+    </div>
+  </div>
+  <!-- Banner almacenamiento -->
+  <div class="storage-banner">
+    <div class="storage-dot ok" id="storage-dot"></div>
+    <div class="storage-info" id="storage-info"><strong>Datos guardados</strong><br>IndexedDB activo</div>
+    <div class="storage-actions">
+      <button class="btn-xs primary" onclick="exportBackup('manual',false)">💾 Guardar</button>
+      <button class="btn-xs" onclick="document.getElementById('file-import').click()">📂 Cargar</button>
+    </div>
+  </div>
+  <!-- Timer -->
+  <div class="card" id="timer-card" style="text-align:center">
+    <div id="badge" class="badge badge-idle">
+      <span class="dot" style="background:#e8821a"></span>
+      <span id="badge-txt">Sin ayuno activo</span>
+    </div>
+    <div class="big-timer" id="big-timer">00:00:00</div>
+    <div class="timer-lbl" id="timer-lbl">Configura tu ayuno abajo 👇</div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-labs"><span>0h</span><span id="prog-mid">—</span><span id="prog-end">—</span></div>
     <div class="metrics">
-      <div class="mbox"><div class="mbox-ico">⏳</div><div class="mbox-val" id="ev">0h 0m</div><div class="mbox-lbl">Tiempo ayunado</div></div>
-      <div class="mbox"><div class="mbox-ico">🏁</div><div class="mbox-val" id="rv">—</div><div class="mbox-lbl">Faltan</div></div>
+      <div class="mbox"><div class="mbox-ico">⏳</div><div class="mbox-val" id="m-elapsed">0h 0m</div><div class="mbox-lbl">Tiempo ayunado</div></div>
+      <div class="mbox"><div class="mbox-ico">🏁</div><div class="mbox-val" id="m-remain">—</div><div class="mbox-lbl">Faltan</div></div>
     </div>
-    <div style="margin-top:10px;text-align:center;font-size:13px;font-weight:700;color:rgba(0,0,0,.38)">
-      🍽️ Puedes comer a las <span id="eat-time" style="color:#b85e0a;font-weight:900">—</span>
-    </div>
+    <div class="eat-line">🍽️ Puedes comer a las <span id="eat-time">—</span></div>
   </div>
-
-  <div class="ctrl">
+  <!-- Controles -->
+  <div class="card" style="padding:18px">
     <div class="sec-lbl">Duración del ayuno</div>
     <div class="fast-grid">
-      <button class="fopt" data-h="12" onclick="selFast(12)">12h</button>
-      <button class="fopt on" data-h="16" onclick="selFast(16)">16h</button>
-      <button class="fopt" data-h="18" onclick="selFast(18)">18h</button>
-      <button class="fopt" data-h="24" onclick="selFast(24)">24h</button>
+      <button class="fopt" data-h="12" onclick="setDur(12)">12h</button>
+      <button class="fopt on" data-h="16" onclick="setDur(16)">16h</button>
+      <button class="fopt" data-h="18" onclick="setDur(18)">18h</button>
+      <button class="fopt" data-h="24" onclick="setDur(24)">24h</button>
     </div>
     <div class="sec-lbl">¿A qué hora empezaste?</div>
-    <div class="row">
-      <label>Inicio:</label>
-      <select class="tinput" id="stinput-h" style="flex:0.7"></select>
-      <select class="tinput" id="stinput-m" style="flex:0.7"></select>
-      <select class="tinput" id="stinput-ampm" style="flex:0.6">
-        <option value="AM">AM</option>
-        <option value="PM">PM</option>
-      </select>
-    </div>
+    <div class="row"><label>Inicio:</label><input type="time" class="time-input" id="inp-start"></div>
     <div class="notif-row">
-      <span>🔔 Notificaciones del navegador</span>
-      <label class="toggle"><input type="checkbox" id="ntoggle" onchange="toggleNotif()"><span class="stoggle"></span></label>
+      <span>🔔 Notificaciones</span>
+      <div class="toggle-track" id="notif-track" onclick="toggleNotif()" style="background:rgba(0,0,0,.18)">
+        <div class="toggle-thumb" id="notif-thumb" style="left:3px"></div>
+      </div>
     </div>
-    <button class="btn-start" id="bstart" onclick="startFast()">🦝 ¡Iniciar ayuno!</button>
-    <button class="btn-stop" id="bstop" onclick="stopFast(false)">Terminar ayuno</button>
+    <button class="btn-start" id="btn-main" onclick="handleMain()">🦝 &nbsp;¡Iniciar ayuno!</button>
   </div>
 
-  <div class="hist-card">
+  <!-- Modal: confirmar terminar ayuno -->
+  <div id="modal-stop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)">
+    <div style="background:#fff;border-radius:24px;padding:26px 22px;max-width:320px;width:100%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.2);animation:popIn .25s ease">
+      <div style="font-size:44px;margin-bottom:10px">⏹️</div>
+      <div style="font-size:18px;font-weight:900;color:#1a1a1a;margin-bottom:6px">¿Terminar el ayuno?</div>
+      <div style="font-size:12px;font-weight:700;color:rgba(0,0,0,.4);margin-bottom:22px">Tu tiempo se guardará en el historial</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="document.getElementById('modal-stop').style.display='none'" style="flex:1;padding:12px;border-radius:12px;border:1.5px solid rgba(0,0,0,.12);background:transparent;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;color:rgba(0,0,0,.45);cursor:pointer">Cancelar</button>
+        <button onclick="confirmStop()" style="flex:2;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#e05555,#c0392b);color:#fff;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 3px 12px rgba(200,50,50,.3)">Sí, terminar</button>
+      </div>
+    </div>
+  </div>
+  <!-- Agua -->
+  <div class="card" style="padding:18px">
+    <div class="water-head">
+      <div>
+        <div class="water-lbl-sm">Agua</div>
+        <div><span class="water-ml-num" id="water-ml-num">0</span><span class="water-ml-unit"> ml</span></div>
+      </div>
+      <button class="water-ring-btn" onclick="addWater()" id="water-ring-btn" title="Agregar vaso">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="26" fill="rgba(220,235,255,.75)" stroke="rgba(180,210,255,.5)" stroke-width="2"/>
+          <circle cx="30" cy="30" r="23" fill="none" stroke="#3b82f6" stroke-width="4.5"
+                  stroke-linecap="round" stroke-dasharray="144.5" stroke-dashoffset="144.5"
+                  transform="rotate(-90 30 30)" id="water-ring"/>
+        </svg>
+        <span class="water-ring-plus">+</span>
+      </button>
+    </div>
+    <div class="water-grid" id="water-grid"></div>
+    <div id="water-cooldown" class="water-cooldown" style="display:none">
+      <span class="water-cooldown-ico">⏱️</span>
+      <div class="water-cooldown-body">
+        <div class="water-cooldown-lbl">Próximo vaso disponible en</div>
+        <div class="water-cooldown-time" id="water-countdown">35:00</div>
+        <div class="water-cooldown-sub">Deja que tu cuerpo absorba el agua 💧</div>
+      </div>
+    </div>
+    <div class="water-msg" id="water-msg">¡Toca + para registrar tu primer vaso! 💧</div>
+  </div>
+  <!-- Historial -->
+  <div class="card" style="padding:18px">
     <div class="hist-header">
-      <div class="hist-title">📋 Historial de ayunos</div>
-      <button class="hist-clear" onclick="clearHist()">Limpiar todo</button>
+      <div class="hist-title">📋 Historial</div>
+      <button class="btn-link" id="btn-clear" onclick="clearHistory()" style="display:none">Limpiar</button>
     </div>
-    <div id="hist-list"></div>
-    <div class="stats-row" id="stats-row" style="display:none">
-      <div class="stat"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">Ayunos totales</div></div>
-      <div class="stat"><div class="stat-val" id="st-avg">0h</div><div class="stat-lbl">Promedio</div></div>
-      <div class="stat"><div class="stat-val" id="st-streak">0</div><div class="stat-lbl">Días seguidos</div></div>
-    </div>
+    <div id="hist-body"><div class="hist-empty">🦝 Aún no hay ayunos registrados</div></div>
   </div>
-
-  <!-- SECCIÓN RACHA IF -->
-  <div class="racha-card">
-    <div class="racha-top">
-      <div class="racha-title">🦝 Mi racha de ayuno IF</div>
-      <button class="btn-racha-reset" id="racha-reset-btn" onclick="resetRacha()" style="display:none">Cambiar fecha</button>
+  <!-- Racha -->
+  <div class="card" style="padding:18px;margin-bottom:6px">
+    <div class="hist-header">
+      <div class="hist-title">🗓️ Racha de ayuno IF</div>
+      <button class="btn-link" id="btn-reset-racha" onclick="resetRacha()" style="display:none">Cambiar fecha</button>
     </div>
-    <div id="racha-setup">
-      <div class="racha-setup">
-        <p>¿Desde qué fecha empezaste tu hábito de ayuno intermitente?</p>
-        <div class="racha-date-row">
-          <label>Fecha:</label>
-          <input type="date" class="tinput" id="racha-date-input"/>
-        </div>
-        <button class="btn-racha" onclick="saveRacha()">🦝 ¡Guardar mi fecha de inicio!</button>
-      </div>
-    </div>
-    <div id="racha-display" style="display:none">
-      <div class="racha-days-big">
-        <div class="racha-num" id="racha-num">0</div>
-        <div class="racha-sub">días ayunando en intermitente 🎯</div>
-      </div>
-      <div class="timeline" id="timeline">
-        <div class="tl-line"></div>
-      </div>
-    </div>
+    <div id="racha-body"></div>
   </div>
 </div>
-
+<!-- Modal celebración -->
+<div class="celebrate-overlay" id="celebrate-overlay" style="display:none">
+  <div class="celebrate-modal">
+    <span class="cel-icon" id="cel-icon">🏆</span>
+    <div class="cel-title" id="cel-title">¡Hito alcanzado!</div>
+    <div class="cel-sub" id="cel-sub">¡Lo lograste!</div>
+    <div class="cel-note" id="cel-note"></div>
+    <button class="btn-celebrate" onclick="closeCelebration()">¡Genial! Continuar 🦝</button>
+  </div>
+</div>
 <script>
-const tapiz=document.getElementById('tapiz');
-const cols=Math.ceil(window.innerWidth/68)+1,rows=Math.ceil(window.innerHeight/68)+2;
-for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const el=document.createElement('div');el.className='tapiz-raccoon';el.textContent='🦝';el.style.cssText=`left:${c*68-8}px;top:${r*68-8}px;--d:${2.5+Math.random()*3}s;--r:${Math.random()*18-9}deg;animation-delay:${Math.random()*3}s`;tapiz.appendChild(el);}
+// ═══════════════════════════════════════════════════════
+//  BASE DE DATOS INTERNA — IndexedDB + Respaldo en archivo
+//
+//  • IndexedDB: base de datos del navegador, más robusta
+//    que localStorage. Sobrevive cierres del navegador.
+//  • "💾 Guardar": descarga ayuno_respaldo_FECHA.json
+//    a tu dispositivo. Este archivo NO se borra aunque
+//    limpies el navegador.
+//  • "📂 Cargar": restaura desde ese archivo JSON.
+//  • Hitos mensuales: limpia el historial detallado y
+//    guarda solo la racha. Descarga respaldo automático.
+//  • Al año (365 días): reinicio completo del sistema.
+// ═══════════════════════════════════════════════════════
 
-let fastDur=16,fastStart=null,ticker=null,running=false;
-let notifEnabled=false,notifSent={half:false,done:false};
-let history=[];
-try{history=JSON.parse(localStorage.getItem('ayuno_hist4')||'[]');}catch(e){}
-function setDefTime(){
-  const n=new Date();
-  let h=n.getHours(),m=n.getMinutes();
-  const ampm=h>=12?'PM':'AM';
-  let h12=h%12;if(h12===0)h12=12;
-  // Poblar horas 1-12
-  const selH=document.getElementById('stinput-h');
-  if(!selH.options.length){for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');selH.appendChild(o);}}
-  selH.value=h12;
-  // Poblar minutos 00-59
-  const selM=document.getElementById('stinput-m');
-  if(!selM.options.length){for(let i=0;i<60;i++){const o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');selM.appendChild(o);}}
-  selM.value=m;
-  document.getElementById('stinput-ampm').value=ampm;
-}
-setDefTime();renderHist();
-
-function selFast(h){fastDur=h;document.querySelectorAll('.fopt').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.h)===h));if(running)updateDisp();}
-
-function startFast(){
-  const hVal=parseInt(document.getElementById('stinput-h').value);
-  const mVal=parseInt(document.getElementById('stinput-m').value);
-  const ampm=document.getElementById('stinput-ampm').value;
-  // Convertir a 24h correctamente
-  let h24=hVal;
-  if(ampm==='AM'&&hVal===12) h24=0;
-  else if(ampm==='PM'&&hVal!==12) h24=hVal+12;
-  const now=new Date();
-  // Construir el momento más reciente en que ocurrió esa hora (dentro de las últimas 24h)
-  const candidate=new Date(now);
-  candidate.setHours(h24,mVal,0,0);
-  if(candidate>now) candidate.setDate(candidate.getDate()-1);
-  if((now-candidate)>86400000) candidate.setDate(candidate.getDate()+1);
-  fastStart=candidate;
-
-  running=true;notifSent={half:false,done:false};
-  document.getElementById('bstart').disabled=true;
-  document.getElementById('bstart').textContent='🦝 Ayunando...';
-  document.getElementById('bstop').style.display='block';
-  document.getElementById('pmid').textContent=fastDur/2+'h';
-  document.getElementById('pend').textContent=fastDur+'h';
-  setMood('fast');say('¡Tú puedes! 💪');
-  if(ticker)clearInterval(ticker);
-  ticker=setInterval(updateDisp,1000);updateDisp();
-}
-
-function stopFast(auto){
-  if(!auto&&!confirm('¿Terminar el ayuno?'))return;
-  const elapsed=fastStart?Math.floor((new Date()-fastStart)/1000):0;
-  const total=fastDur*3600,pct=Math.min(Math.round((elapsed/total)*100),100);
-  const eh=Math.floor(elapsed/3600),em=Math.floor((elapsed%3600)/60);
-  if(elapsed>60){
-    const rec={date:new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}),dur:`${eh}h ${em}m`,durH:+(elapsed/3600).toFixed(2),goal:fastDur,pct,ts:Date.now()};
-    history.unshift(rec);if(history.length>30)history=history.slice(0,30);
-    try{localStorage.setItem('ayuno_hist4',JSON.stringify(history));}catch(e){}
-    renderHist();
-  }
-  running=false;clearInterval(ticker);ticker=null;fastStart=null;
-  document.getElementById('btimer').textContent='00:00:00';
-  document.getElementById('tlbl').textContent='Configura tu ayuno abajo 👇';
-  document.getElementById('stxt').textContent='Sin ayuno activo';
-  document.getElementById('sbadge').className='badge badge-eat';
-  document.getElementById('pfill').style.width='0%';
-  document.getElementById('ev').textContent='0h 0m';document.getElementById('rv').textContent='—';
-  document.getElementById('eat-time').textContent='—';
-  document.getElementById('eat-time').style.color='#b85e0a';
-  document.getElementById('eat-time-row').style.display='none';
-  document.getElementById('eat-time').textContent='—';
-  document.getElementById('pmid').textContent='—';document.getElementById('pend').textContent='—';
-  document.getElementById('bstart').disabled=false;
-  document.getElementById('bstart').textContent='🦝 ¡Iniciar ayuno!';
-  document.getElementById('bstop').style.display='none';
-  setMood('eat');if(!auto)say('¡A comer rico! 🍊');setDefTime();renderHist();
-}
-
-function updateDisp(){
-  if(!fastStart)return;
-  const now=new Date(),el=Math.floor((now-fastStart)/1000),tot=fastDur*3600,rem=tot-el;
-  const eh=Math.floor(el/3600),em=Math.floor((el%3600)/60),es=el%60;
-  document.getElementById('btimer').textContent=`${String(eh).padStart(2,'0')}:${String(em).padStart(2,'0')}:${String(es).padStart(2,'0')}`;
-  document.getElementById('ev').textContent=`${eh}h ${em}m`;
-  document.getElementById('pfill').style.width=Math.min((el/tot)*100,100)+'%';
-  // Calcular hora en que puede comer
-  const eatAt=new Date(fastStart.getTime()+tot*1000);
-  let eH=eatAt.getHours(),eM=eatAt.getMinutes();
-  const eAmpm=eH>=12?'PM':'AM';let eH12=eH%12;if(eH12===0)eH12=12;
-  document.getElementById('eat-time').textContent=`${eH12}:${String(eM).padStart(2,'0')} ${eAmpm}`;
-
-  if(rem>0){
-    const rh=Math.floor(rem/3600),rm=Math.floor((rem%3600)/60);
-    document.getElementById('rv').textContent=`${rh}h ${rm}m`;
-    document.getElementById('tlbl').textContent=`Meta: ${fastDur}h · ¡Sigue adelante!`;
-    document.getElementById('stxt').textContent=`Ayunando · ${fastDur}h`;
-    document.getElementById('sbadge').className='badge badge-fast';
-    setMood('fast');
-    if(el>=tot/2&&!notifSent.half){notifSent.half=true;sendNotif('¡Vas a la mitad! 🦝','Llevas '+eh+'h de '+fastDur+'h. ¡Sigue!');}
-  } else {
-    document.getElementById('rv').textContent='¡Listo! 🎉';
-    document.getElementById('tlbl').textContent=`¡Completaste tu ayuno de ${fastDur}h! 🎉`;
-    document.getElementById('stxt').textContent='¡Meta lograda! 🎉';
-    setMood('done');
-    if(!notifSent.done){notifSent.done=true;sendNotif('¡Ayuno completado! 🎉','Lograste '+fastDur+'h. ¡El mapache está orgulloso!');say('¡Lo lograste! 🌟');}
-  }
-}
-
-function setMood(m){
-  const moods={fast:'¡Aguantando el hambre! 😤',eat:'¡Listo para ayunar!',done:'¡Meta cumplida! 🎉'};
-  document.getElementById('raccoon-mood').textContent=moods[m];
-}
-
-let bubT;
-function say(msg){const el=document.getElementById('bubble');el.textContent=msg;el.style.display='block';clearTimeout(bubT);bubT=setTimeout(()=>el.style.display='none',2800);}
-
-function toggleNotif(){
-  const cb=document.getElementById('ntoggle');
-  if(cb.checked){
-    if(!('Notification' in window)){showToast('🔕 Tu navegador no soporta notificaciones');cb.checked=false;return;}
-    Notification.requestPermission().then(p=>{if(p==='granted'){notifEnabled=true;showToast('🔔 ¡Notificaciones activadas!');}else{notifEnabled=false;cb.checked=false;showToast('🔕 Permiso denegado.');}});
-  } else{notifEnabled=false;showToast('🔕 Notificaciones desactivadas');}
-}
-function sendNotif(title,body){if(notifEnabled&&Notification.permission==='granted')new Notification(title,{body});showToast('🔔 '+title);}
-let toastT;
-function showToast(msg){let t=document.querySelector('.notif-toast');if(!t){t=document.createElement('div');t.className='notif-toast';document.body.appendChild(t);}t.textContent=msg;t.style.display='flex';clearTimeout(toastT);toastT=setTimeout(()=>{if(t)t.style.display='none';},3200);}
-
-function renderHist(){
-  const el=document.getElementById('hist-list'),sr=document.getElementById('stats-row');
-  if(!history.length){el.innerHTML='<div class="hist-empty">🦝 Aún no hay ayunos registrados</div>';sr.style.display='none';return;}
-  sr.style.display='grid';
-  el.innerHTML=history.slice(0,8).map(r=>`<div class="hist-item"><div class="hist-icon ${r.pct>=100?'hi-ok':'hi-inc'}">${r.pct>=100?'✅':'⏳'}</div><div class="hist-info"><div class="hist-date">${r.date} · Meta: ${r.goal}h</div><div class="hist-dur">${r.dur} ayunado</div></div><span class="hist-pct ${r.pct>=100?'pct-ok':'pct-mid'}">${r.pct}%</span></div>`).join('');
-  const tot=history.length,avg=history.reduce((s,r)=>s+r.durH,0)/tot,ah=Math.floor(avg),am=Math.round((avg-ah)*60);
-  document.getElementById('st-total').textContent=tot;
-  document.getElementById('st-avg').textContent=ah+'h'+(am?` ${am}m`:'');
-  document.getElementById('st-streak').textContent=calcStreak();
-}
-function calcStreak(){if(!history.length)return 0;const days=[...new Set(history.map(r=>r.date))];let s=1;for(let i=0;i<days.length-1;i++){if(Math.round((new Date(days[i])-new Date(days[i+1]))/(864e5))===1)s++;else break;}return s;}
-function clearHist(){if(!history.length)return;if(!confirm('¿Borrar todo el historial?'))return;history=[];try{localStorage.removeItem('ayuno_hist4');}catch(e){}renderHist();say('Historial borrado 🗑️');}
-
-// ── RACHA IF ──
-const HITOS=[
-  {days:15,  label:'15 días',   emoji:'🌱', msg:'¡Increíble arranque! Ya tienes 2 semanas de hábito.'},
-  {days:30,  label:'1 mes',     emoji:'⭐', msg:'¡Un mes completo! El hábito ya está en tu rutina.'},
-  {days:60,  label:'2 meses',   emoji:'🔥', msg:'¡Dos meses! Tu cuerpo ya lo agradece.'},
-  {days:90,  label:'3 meses',   emoji:'💪', msg:'¡90 días! Eres un/a pro del ayuno intermitente.'},
-  {days:180, label:'6 meses',   emoji:'🏆', msg:'¡Medio año! Eso es disciplina de verdad.'},
-  {days:365, label:'1 año',     emoji:'👑', msg:'¡UN AÑO COMPLETO! Eres una leyenda del IF. 🎉'},
+const DB_NAME='AyunoTrackerDB', DB_VER=2, STORE='ayuno_data', DATA_KEY='main';
+const MILESTONES=[
+  {key:'15d',days:15, label:'15 días', icon:'🌱',msg:'¡Arrancaste con todo!'},
+  {key:'1m', days:30, label:'1 mes',   icon:'⭐',msg:'¡Un mes de campeón!'},
+  {key:'2m', days:60, label:'2 meses', icon:'🔥',msg:'¡Imparable!'},
+  {key:'3m', days:90, label:'3 meses', icon:'💪',msg:'¡Hábito forjado!'},
+  {key:'6m', days:180,label:'6 meses', icon:'🏆',msg:'¡Eres una leyenda!'},
+  {key:'1y', days:365,label:'1 año',   icon:'👑',msg:'¡Rey/Reina del ayuno!'},
 ];
+const DEFAULT_DATA=()=>({version:DB_VER,rachaStart:null,milestonesReached:[],history:[],activeFast:null,lastSaved:null,yearAchievements:[]});
 
-let rachaStart=null;
-try{const s=localStorage.getItem('racha_start');if(s)rachaStart=new Date(s);}catch(e){}
-
-function saveRacha(){
-  const v=document.getElementById('racha-date-input').value;
-  if(!v){showToast('🦝 Selecciona una fecha');return;}
-  rachaStart=new Date(v+'T00:00:00');
-  try{localStorage.setItem('racha_start',rachaStart.toISOString());}catch(e){}
-  renderRacha();
-}
-function resetRacha(){
-  if(!confirm('¿Cambiar la fecha de inicio de tu racha?'))return;
-  rachaStart=null;
-  try{localStorage.removeItem('racha_start');}catch(e){}
-  document.getElementById('racha-setup').style.display='block';
-  document.getElementById('racha-display').style.display='none';
-  document.getElementById('racha-reset-btn').style.display='none';
-  // poner fecha de hoy por default
-  const hoy=new Date();
-  document.getElementById('racha-date-input').value=hoy.toISOString().slice(0,10);
-}
-function renderRacha(){
-  if(!rachaStart){
-    // poner fecha de hoy por default en el input
-    const hoy=new Date();
-    document.getElementById('racha-date-input').value=hoy.toISOString().slice(0,10);
-    return;
-  }
-  document.getElementById('racha-setup').style.display='none';
-  document.getElementById('racha-display').style.display='block';
-  document.getElementById('racha-reset-btn').style.display='block';
-
-  const now=new Date();
-  const dias=Math.floor((now-rachaStart)/86400000);
-  document.getElementById('racha-num').textContent=dias;
-
-  // Renderizar timeline
-  const tl=document.getElementById('timeline');
-  // Conservar la línea vertical
-  tl.innerHTML='<div class="tl-line"></div>';
-  HITOS.forEach(h=>{
-    const reached=dias>=h.days;
-    const hitaDate=new Date(rachaStart.getTime()+h.days*86400000);
-    const dateStr=hitaDate.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
-    const item=document.createElement('div');
-    item.className='tl-item';
-    item.innerHTML=`
-      <div class="tl-dot ${reached?'reached':'pending'}">${reached?h.emoji:'⬜'}</div>
-      <div class="tl-info">
-        <div class="tl-label ${reached?'':'pending'}">${h.label}</div>
-        <div class="tl-date">${reached?'Logrado el':'Meta: '} ${dateStr}</div>
-        ${reached?`<span class="tl-congrats">${h.msg}</span>`:''}
-      </div>`;
-    tl.appendChild(item);
+// ── IndexedDB ──────────────────────────────────────────
+let _db=null;
+function openDB(){
+  if(_db) return Promise.resolve(_db);
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open(DB_NAME,DB_VER);
+    req.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE);};
+    req.onsuccess=e=>{_db=e.target.result;res(_db);};
+    req.onerror=e=>rej(e.target.error);
   });
 }
-renderRacha();
+async function dbGet(){
+  const db=await openDB();
+  return new Promise((res,rej)=>{
+    const req=db.transaction(STORE,'readonly').objectStore(STORE).get(DATA_KEY);
+    req.onsuccess=e=>res(e.target.result||DEFAULT_DATA());
+    req.onerror=e=>rej(e.target.error);
+  });
+}
+async function dbSet(data){
+  const db=await openDB();
+  data.lastSaved=new Date().toISOString();
+  return new Promise((res,rej)=>{
+    const req=db.transaction(STORE,'readwrite').objectStore(STORE).put(data,DATA_KEY);
+    req.onsuccess=()=>res();
+    req.onerror=e=>rej(e.target.error);
+  });
+}
+
+// ── Estado ─────────────────────────────────────────────
+let DATA=DEFAULT_DATA(),fastDur=16,fastStart=null,elapsed=0,running=false,notifOn=false,notifSent={half:false,done:false},ticker=null;
+
+// ── Tapiz ──────────────────────────────────────────────
+(function(){
+  const t=document.getElementById('tapiz');
+  const cols=Math.ceil(window.innerWidth/70)+1,rows=Math.ceil(window.innerHeight/70)+2;
+  let h='';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const rot=(Math.random()*20-10).toFixed(1),dur=(2.5+Math.random()*3).toFixed(1),del=(Math.random()*3).toFixed(1);
+    h+=`<span class="t-rc" style="top:${r*70}px;left:${c*70}px;--r:${rot}deg;--d:${dur}s;--dl:${del}s">🦝</span>`;
+  }
+  t.innerHTML=h;
+})();
+
+// ── Utils ──────────────────────────────────────────────
+function pad(n){return String(n).padStart(2,'0');}
+function fmt12(d){let h=d.getHours(),m=d.getMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return `${h}:${pad(m)} ${ap}`;}
+function diffDays(s){return Math.floor((Date.now()-new Date(s+'T12:00:00').getTime())/86400000);}
+function nowISO(){return new Date().toISOString().split('T')[0];}
+let toastT;
+function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>el.style.display='none',3200);}
+(function(){const n=new Date();document.getElementById('inp-start').value=`${pad(n.getHours())}:${pad(n.getMinutes())}`;})();
+
+// ── Guardar ────────────────────────────────────────────
+async function save(){
+  DATA.activeFast=running&&fastStart?{fastStart:fastStart.toISOString(),fastDur}:null;
+  await dbSet(DATA);
+  updateBanner();
+}
+
+// ── Cargar ─────────────────────────────────────────────
+async function load(){
+  DATA=await dbGet();
+  if(DATA.activeFast){
+    const{fastStart:fs,fastDur:fd}=DATA.activeFast;
+    fastDur=fd;fastStart=new Date(fs);elapsed=Math.floor((Date.now()-fastStart.getTime())/1000);running=true;
+    document.querySelectorAll('.fopt').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.h)===fd));
+    document.getElementById('btn-main').innerHTML='⏹️ &nbsp;Terminar ayuno';
+    document.getElementById('btn-main').className='btn-stop';
+    document.getElementById('btn-main').onclick=stopFast;
+    document.getElementById('prog-mid').textContent=fd/2+'h';
+    document.getElementById('prog-end').textContent=fd+'h';
+    startTicker();updateDOM();
+  }
+  renderHistory();renderRacha();initWater();initMood();updateBanner();
+  if(DATA.rachaStart)checkMilestones(false);
+}
+
+// ── Banner ─────────────────────────────────────────────
+function updateBanner(){
+  const ts=DATA.lastSaved?new Date(DATA.lastSaved).toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+  document.getElementById('storage-info').innerHTML=`<strong>Base de datos activa</strong><br>Guardado: ${ts}`;
+}
+
+// ── Export / Import ────────────────────────────────────
+function exportBackup(reason,compact){
+  const payload=compact?{version:DATA.version,rachaStart:DATA.rachaStart,milestonesReached:DATA.milestonesReached,yearAchievements:DATA.yearAchievements,lastSaved:DATA.lastSaved,history:[],activeFast:null,_compacted:true,_at:new Date().toISOString()}:DATA;
+  const name=`ayuno_${reason}_${nowISO()}.json`;
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);
+  showToast(`💾 Archivo guardado: ${name}`);
+}
+
+function importFromFile(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    try{
+      const imp=JSON.parse(ev.target.result);
+      if(!DATA.history.length&&imp.history?.length)DATA.history=imp.history;
+      if(!DATA.rachaStart&&imp.rachaStart)DATA.rachaStart=imp.rachaStart;
+      if((imp.milestonesReached?.length||0)>(DATA.milestonesReached?.length||0))DATA.milestonesReached=imp.milestonesReached;
+      if(imp.yearAchievements?.length){DATA.yearAchievements=[...(DATA.yearAchievements||[]),...imp.yearAchievements].filter((v,i,a)=>a.findIndex(x=>x.date===v.date)===i);}
+      await save();renderHistory();renderRacha();
+      showToast('✅ Datos restaurados correctamente');
+    }catch{showToast('❌ Archivo inválido');}
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+// ── Hitos y compactación ───────────────────────────────
+function checkMilestones(showModal){
+  if(!DATA.rachaStart)return;
+  const days=diffDays(DATA.rachaStart);
+  for(const m of MILESTONES){
+    if(days>=m.days&&!DATA.milestonesReached.includes(m.key)){
+      DATA.milestonesReached.push(m.key);
+      if(m.key==='1y'){
+        // ── REINICIO ANUAL ─────────────────────────
+        DATA.yearAchievements.push({type:'year_completed',date:new Date().toISOString(),rachaStart:DATA.rachaStart,label:'1 año de ayuno IF 👑'});
+        exportBackup('ANO_COMPLETO',false);
+        DATA.history=[];DATA.rachaStart=null;DATA.milestonesReached=[];DATA.activeFast=null;
+        running=false;fastStart=null;elapsed=0;clearInterval(ticker);ticker=null;
+      }else{
+        // ── COMPACTACIÓN MENSUAL ───────────────────
+        const limit=Date.now()-30*86400000;
+        DATA.history=DATA.history.filter(r=>new Date(r.date+'T12:00:00').getTime()>limit);
+        exportBackup(m.key,true);
+      }
+      save();
+      if(showModal)showCelebrateModal(m,days);
+      break;
+    }
+  }
+}
+
+function showCelebrateModal(m,days){
+  const isYear=m.key==='1y';
+  document.getElementById('cel-icon').textContent=m.icon;
+  document.getElementById('cel-title').textContent=`¡${m.label} de ayuno IF!`;
+  document.getElementById('cel-sub').textContent=m.msg+` — ${days} días seguidos 🔥`;
+  document.getElementById('cel-note').innerHTML=isYear
+    ?`<strong>🔄 Sistema reiniciado.</strong> Se descargó un respaldo completo de tu año. ¡Empieza una nueva racha!`
+    :`<strong>💾 Respaldo automático descargado.</strong> El historial detallado fue limpiado. Solo se conserva tu racha. Guarda el archivo .json en un lugar seguro — si borras el navegador puedes restaurar desde ahí con el botón 📂 Cargar.`;
+  document.getElementById('celebrate-overlay').style.display='flex';
+}
+function closeCelebration(){document.getElementById('celebrate-overlay').style.display='none';renderHistory();renderRacha();}
+
+// ── Timer ──────────────────────────────────────────────
+function startTicker(){
+  clearInterval(ticker);
+  ticker=setInterval(()=>{if(!fastStart)return;elapsed=Math.floor((Date.now()-fastStart.getTime())/1000);updateDOM();checkNotifs();},1000);
+}
+function updateDOM(){
+  const tot=fastDur*3600,rem=Math.max(tot-elapsed,0);
+  const eh=Math.floor(elapsed/3600),em=Math.floor((elapsed%3600)/60),es=elapsed%60;
+  const rh=Math.floor(rem/3600),rm=Math.floor((rem%3600)/60);
+  const pct=Math.min((elapsed/tot)*100,100),done=elapsed>=tot;
+  document.getElementById('big-timer').textContent=`${pad(eh)}:${pad(em)}:${pad(es)}`;
+  document.getElementById('m-elapsed').textContent=`${eh}h ${em}m`;
+  document.getElementById('m-remain').textContent=done?'¡Listo! 🎉':`${rh}h ${rm}m`;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  if(fastStart){const eat=new Date(fastStart.getTime()+tot*1000);document.getElementById('eat-time').textContent=fmt12(eat);}
+  const badge=document.getElementById('badge'),bdot=badge.querySelector('.dot');
+  if(done){badge.className='badge badge-done';bdot.style.background='#5ab858';document.getElementById('badge-txt').textContent='¡Meta lograda! 🎉';document.getElementById('timer-lbl').textContent=`¡Completaste tu ayuno de ${fastDur}h! 🎉`;document.getElementById('mood-chip').textContent='¡Meta cumplida! 🎉';document.getElementById('timer-card').className='card done';}
+  else{badge.className='badge badge-fast';bdot.style.background='#888';document.getElementById('badge-txt').textContent=`Ayunando · ${fastDur}h`;document.getElementById('timer-lbl').textContent=`Meta: ${fastDur}h · ¡Sigue adelante!`;document.getElementById('mood-chip').textContent='¡Aguantando el hambre! 😤';document.getElementById('timer-card').className='card fasting';}
+}
+function checkNotifs(){
+  const tot=fastDur*3600,eh=Math.floor(elapsed/3600);
+  if(elapsed>=tot/2&&!notifSent.half){notifSent.half=true;showToast(`¡Vas a la mitad! Llevas ${eh}h de ${fastDur}h 💪`);if(notifOn&&Notification.permission==='granted')new Notification('¡Vas a la mitad! 🦝',{body:`Llevas ${eh}h de ${fastDur}h`});}
+  if(elapsed>=tot&&!notifSent.done){notifSent.done=true;showToast('¡Ayuno completado! 🎉');if(notifOn&&Notification.permission==='granted')new Notification('¡Ayuno completado! 🎉',{body:`Lograste ${fastDur}h.`});}
+}
+
+// ── Acciones ───────────────────────────────────────────
+function setDur(h){fastDur=h;document.querySelectorAll('.fopt').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.h)===h));if(running)updateDOM();}
+function handleMain(){if(!running)startFast();else stopFast();}
+
+function startFast(){
+  const val=document.getElementById('inp-start').value;if(!val){showToast('Pon la hora de inicio');return;}
+  const[h,m]=val.split(':').map(Number);const now=new Date();
+  fastStart=new Date(now);fastStart.setHours(h,m,0,0);if(fastStart>now)fastStart.setDate(fastStart.getDate()-1);
+  elapsed=Math.floor((Date.now()-fastStart.getTime())/1000);running=true;notifSent={half:false,done:false};
+  document.getElementById('btn-main').innerHTML='⏹️ &nbsp;Terminar ayuno';document.getElementById('btn-main').className='btn-stop';document.getElementById('btn-main').onclick=stopFast;
+  document.getElementById('prog-mid').textContent=fastDur/2+'h';document.getElementById('prog-end').textContent=fastDur+'h';
+  save();startTicker();updateDOM();showToast('¡Ayuno iniciado! 🦝 Tú puedes 💪');
+}
+
+function stopFast(){
+  document.getElementById('modal-stop').style.display='flex';
+}
+
+async function confirmStop(){
+  document.getElementById('modal-stop').style.display='none';
+  clearInterval(ticker);ticker=null;
+  const tot=fastDur*3600,pct=Math.min(Math.round((elapsed/tot)*100),100);
+  const eh=Math.floor(elapsed/3600),em=Math.floor((elapsed%3600)/60);
+  if(elapsed>60){DATA.history.unshift({date:nowISO(),dur:`${eh}h ${em}m`,durH:+(elapsed/3600).toFixed(2),goal:fastDur,pct,ts:Date.now()});if(DATA.history.length>60)DATA.history=DATA.history.slice(0,60);}
+  running=false;fastStart=null;elapsed=0;DATA.activeFast=null;
+  await save();
+  if(DATA.rachaStart)checkMilestones(true);
+  document.getElementById('big-timer').textContent='00:00:00';document.getElementById('timer-lbl').textContent='Configura tu ayuno abajo 👇';
+  document.getElementById('badge-txt').textContent='Sin ayuno activo';document.getElementById('badge').className='badge badge-idle';document.getElementById('badge').querySelector('.dot').style.background='#e8821a';
+  document.getElementById('prog-fill').style.width='0%';document.getElementById('prog-mid').textContent='—';document.getElementById('prog-end').textContent='—';
+  document.getElementById('m-elapsed').textContent='0h 0m';document.getElementById('m-remain').textContent='—';document.getElementById('eat-time').textContent='—';
+  document.getElementById('mood-chip').textContent='¡Listo para ayunar!';document.getElementById('timer-card').className='card';
+  document.getElementById('btn-main').innerHTML='🦝 &nbsp;¡Iniciar ayuno!';document.getElementById('btn-main').className='btn-start';document.getElementById('btn-main').onclick=handleMain;
+  const now=new Date();document.getElementById('inp-start').value=`${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  renderHistory();showToast('¡A comer rico! 🍊 Guardado en historial');
+}
+
+async function toggleNotif(){
+  if(!notifOn){if(!('Notification' in window)){showToast('Tu navegador no soporta notificaciones');return;}const p=await Notification.requestPermission();if(p==='granted'){notifOn=true;showToast('🔔 ¡Notificaciones activadas!');}else{showToast('🔕 Permiso denegado');return;}}
+  else{notifOn=false;showToast('🔕 Notificaciones desactivadas');}
+  document.getElementById('notif-track').style.background=notifOn?'linear-gradient(90deg,#888,#444)':'rgba(0,0,0,.18)';
+  document.getElementById('notif-thumb').style.left=(notifOn?19:3)+'px';
+}
+
+// ── Historial ──────────────────────────────────────────
+function renderHistory(){
+  const body=document.getElementById('hist-body'),clearBtn=document.getElementById('btn-clear'),hist=DATA.history||[];
+  if(!hist.length){body.innerHTML='<div class="hist-empty">🦝 Aún no hay ayunos registrados</div>';clearBtn.style.display='none';return;}
+  clearBtn.style.display='block';
+  const avg=hist.reduce((s,r)=>s+r.durH,0)/hist.length,ah=Math.floor(avg),am=Math.round((avg-ah)*60),streak=calcStreak(hist);
+  let html=hist.slice(0,8).map((r,i)=>{
+    const disp=new Date(r.date+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+    return `<div class="hist-item" style="${i===Math.min(hist.length,8)-1?'border-bottom:none':''}"><div class="hist-icon ${r.pct>=100?'hi-ok':'hi-inc'}">${r.pct>=100?'✅':'⏳'}</div><div style="flex:1"><div style="font-size:11px;color:rgba(0,0,0,.35);font-weight:700">${disp} · Meta: ${r.goal}h</div><div style="font-size:14px;font-weight:800;color:#1a1a1a">${r.dur} ayunado</div></div><span class="hist-pct ${r.pct>=100?'pct-ok':'pct-inc'}">${r.pct}%</span></div>`;
+  }).join('');
+  html+=`<div class="stats-row"><div><div class="stat-val">${hist.length}</div><div class="stat-lbl">Ayunos totales</div></div><div><div class="stat-val">${ah}h${am?' '+am+'m':''}</div><div class="stat-lbl">Promedio</div></div><div><div class="stat-val">${streak}</div><div class="stat-lbl">Días seguidos</div></div></div>`;
+  body.innerHTML=html;
+}
+function calcStreak(hist){
+  if(!hist.length)return 0;
+  const dates=[...new Set(hist.map(r=>r.date))].sort((a,b)=>b.localeCompare(a));
+  let s=1;
+  for(let i=0;i<dates.length-1;i++){if(Math.round((new Date(dates[i]+'T12:00:00')-new Date(dates[i+1]+'T12:00:00'))/86400000)===1)s++;else break;}
+  return s;
+}
+async function clearHistory(){if(!confirm('¿Borrar todo el historial?'))return;DATA.history=[];await save();renderHistory();showToast('Historial borrado 🗑️');}
+
+// ── Estados de ánimo (Motivado / Normal / Ansioso) ──────
+const RACCOON_FACES=[
+  // 0 Motivado
+  `<svg viewBox="0 0 44 46" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="9" cy="10" rx="6" ry="7" fill="#aaa"/><ellipse cx="35" cy="10" rx="6" ry="7" fill="#aaa"/>
+    <ellipse cx="9" cy="10" rx="3.5" ry="4.5" fill="#f9a0a0"/><ellipse cx="35" cy="10" rx="3.5" ry="4.5" fill="#f9a0a0"/>
+    <ellipse cx="22" cy="26" rx="17" ry="16" fill="#aaa"/>
+    <path d="M9 18 Q22 12 35 18" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round" opacity=".45"/>
+    <ellipse cx="15" cy="23" rx="7.5" ry="5.5" fill="#222"/><ellipse cx="29" cy="23" rx="7.5" ry="5.5" fill="#222"/>
+    <ellipse cx="15" cy="23" rx="5.5" ry="4" fill="#d8d8d0"/><ellipse cx="29" cy="23" rx="5.5" ry="4" fill="#d8d8d0"/>
+    <path d="M10 16.5 Q15 13 20 15" stroke="#555" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M24 15 Q29 13 34 16.5" stroke="#555" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <circle cx="15" cy="21.5" r="3.2" fill="#111"/><circle cx="29" cy="21.5" r="3.2" fill="#111"/>
+    <circle cx="16" cy="20" r="1.2" fill="white"/><circle cx="30" cy="20" r="1.2" fill="white"/>
+    <ellipse cx="8" cy="28" rx="3.5" ry="2.2" fill="#ff7070" opacity=".35"/>
+    <ellipse cx="36" cy="28" rx="3.5" ry="2.2" fill="#ff7070" opacity=".35"/>
+    <ellipse cx="22" cy="28.5" rx="2.5" ry="1.8" fill="#e07070"/>
+    <path d="M14 31.5 Q22 38.5 30 31.5" stroke="#904040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  // 1 Normal
+  `<svg viewBox="0 0 44 46" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="9" cy="10" rx="6" ry="7" fill="#aaa"/><ellipse cx="35" cy="10" rx="6" ry="7" fill="#aaa"/>
+    <ellipse cx="9" cy="10" rx="3.5" ry="4.5" fill="#f9a0a0"/><ellipse cx="35" cy="10" rx="3.5" ry="4.5" fill="#f9a0a0"/>
+    <ellipse cx="22" cy="26" rx="17" ry="16" fill="#aaa"/>
+    <path d="M9 18 Q22 12 35 18" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round" opacity=".45"/>
+    <ellipse cx="15" cy="23" rx="7.5" ry="5.5" fill="#222"/><ellipse cx="29" cy="23" rx="7.5" ry="5.5" fill="#222"/>
+    <ellipse cx="15" cy="23" rx="5.5" ry="4" fill="#d8d8d0"/><ellipse cx="29" cy="23" rx="5.5" ry="4" fill="#d8d8d0"/>
+    <path d="M10 17 Q15 15 20 16.5" stroke="#666" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M24 16.5 Q29 15 34 17" stroke="#666" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <circle cx="15" cy="23" r="3" fill="#111"/><circle cx="29" cy="23" r="3" fill="#111"/>
+    <circle cx="16" cy="21.8" r="1.1" fill="white"/><circle cx="30" cy="21.8" r="1.1" fill="white"/>
+    <ellipse cx="22" cy="28.5" rx="2.5" ry="1.8" fill="#e07070"/>
+    <path d="M17 32.5 Q22 35 27 32.5" stroke="#904040" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  // 2 Ansioso
+  `<svg viewBox="0 0 44 46" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="9" cy="10" rx="6" ry="7" fill="#aaa"/><ellipse cx="35" cy="10" rx="6" ry="7" fill="#aaa"/>
+    <ellipse cx="9" cy="10" rx="3.5" ry="4.5" fill="#f9a0a0"/><ellipse cx="35" cy="10" rx="3.5" ry="4.5" fill="#f9a0a0"/>
+    <ellipse cx="22" cy="26" rx="17" ry="16" fill="#aaa"/>
+    <path d="M9 18 Q22 12 35 18" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round" opacity=".45"/>
+    <ellipse cx="15" cy="23" rx="7.5" ry="5.5" fill="#222"/><ellipse cx="29" cy="23" rx="7.5" ry="5.5" fill="#222"/>
+    <ellipse cx="15" cy="23" rx="5.5" ry="4" fill="#d8d8d0"/><ellipse cx="29" cy="23" rx="5.5" ry="4" fill="#d8d8d0"/>
+    <path d="M10 16 Q15 18.5 20 16.5" stroke="#555" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M24 16.5 Q29 18.5 34 16" stroke="#555" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="15" cy="23.5" r="2.8" fill="#111"/><circle cx="29" cy="23.5" r="2.8" fill="#111"/>
+    <circle cx="15.8" cy="22.3" r="1" fill="white"/><circle cx="29.8" cy="22.3" r="1" fill="white"/>
+    <ellipse cx="22" cy="28.5" rx="2.5" ry="1.8" fill="#e07070"/>
+    <path d="M15 33 Q18.5 30.5 22 32.5 Q25.5 34.5 29 32" stroke="#904040" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="38" cy="17" rx="1.8" ry="2.8" fill="#88bbff" opacity=".75"/>
+    <path d="M38 14.2 Q39.5 15.5 38 17" stroke="#88bbff" stroke-width="1" fill="none" opacity=".75"/>
+  </svg>`
+];
+const MOOD_NAMES=['Motivado','Normal','Ansioso'];
+
+const MOOD_CFG=[
+  {areaClass:'ma-feliz',decos:[
+    {e:'✨',s:'top:-16px;left:-30px;animation-delay:0s'},
+    {e:'⭐',s:'top:-14px;right:-30px;animation-delay:.5s'},
+    {e:'💪',s:'bottom:-4px;left:-26px;animation-delay:1s'}
+  ]},
+  {areaClass:'',decos:[]},
+  {areaClass:'ma-triste',decos:[
+    {e:'😰',s:'top:-16px;right:-28px;animation-delay:0s'},
+    {e:'💫',s:'bottom:-4px;left:-28px;animation-delay:.8s'}
+  ]}
+];
+
+function renderMoodButtons(){
+  const wrap=document.getElementById('mood-btns-wrap');
+  if(!wrap)return;
+  const s=DATA.moodToday?.state??null;
+  wrap.innerHTML=MOOD_NAMES.map((name,i)=>`
+    <button class="mood-btn${s===i?' on-'+i:''}" onclick="setMoodState(${i})" id="mbtn-${i}">
+      <span class="mood-face">${RACCOON_FACES[i]}</span>
+      <span class="mood-lbl-txt">${name}</span>
+    </button>`).join('');
+}
+
+function initMood(){
+  const today=nowISO();
+  if(!DATA.moodToday||DATA.moodToday.date!==today) DATA.moodToday={state:null,date:today};
+  renderMoodButtons();
+  applyMoodUI(DATA.moodToday.state);
+}
+async function setMoodState(s){
+  DATA.moodToday={state:s,date:nowISO()};
+  await save();
+  renderMoodButtons();
+  applyMoodUI(s);
+  showToast(`Estado de ánimo: ${MOOD_NAMES[s]} ${['💪','👍','😰'][s]}`);
+}
+function applyMoodUI(s){
+  const area=document.getElementById('raccoon-area');
+  const decos=document.getElementById('raccoon-decos');
+  if(!area||!decos)return;
+  area.className='raccoon-area'+(s!==null&&MOOD_CFG[s]?.areaClass?' '+MOOD_CFG[s].areaClass:'');
+  if(s===null){decos.innerHTML='';return;}
+  const cfg=MOOD_CFG[s];
+  decos.innerHTML=cfg.decos.map(d=>`<span style="position:absolute;font-size:22px;${d.s};animation:floatDeco 2.2s ease-in-out infinite">${d.e}</span>`).join('');
+  const chip=document.getElementById('mood-chip');
+  if(chip&&!running){
+    const base=['¡El mapache está motivado hoy! 💪','¡Listo para ayunar!','El mapache está ansioso... 😰'];
+    chip.textContent=base[s];
+  }
+}
+
+// ── Agua v2 (estilo imagen ref) ────────────────────────
+const WATER_ML_PER_GLASS=250;
+const WATER_MSGS=['¡Toca + para registrar tu primer vaso! 💧','¡1 vaso! (250 ml) Buen inicio 🌊','¡2 vasos! (500 ml) ¡Sigue así! 💪','¡3 vasos! (750 ml) ¡Casi a la mitad! 🔥','¡4 vasos! (1000 ml) ¡Mitad del día! ⭐','¡5 vasos! (1250 ml) ¡Muy bien! 🌟','¡6 vasos! (1500 ml) ¡Casi lo logras! 💎','¡7 vasos! (1750 ml) ¡Un vaso más! 🏃','¡8 vasos! (2000 ml) ¡Hidratación perfecta! 🏆🎉'];
+
+function _getWaterCount(){
+  const today=nowISO();
+  if(!DATA.water||DATA.water.date!==today)return 0;
+  return DATA.water.count||0;
+}
+function _glassItem(i,count){
+  const filled=i<count,isNext=i===count&&count<8;
+  const gPath='M4 3 L48 3 L41 56 Q37 62 26 62 Q15 62 11 56 Z';
+  const id=`wg3_${i}`;
+  if(isNext){
+    return `<div class="water-gi is-next" onclick="addWater()">
+      <svg viewBox="0 0 52 66" width="46" height="54">
+        <path d="${gPath}" fill="rgba(180,210,255,0.22)" stroke="rgba(147,197,253,0.55)" stroke-width="1.5" stroke-linejoin="round"/>
+        <text x="26" y="40" text-anchor="middle" font-size="24" fill="rgba(59,130,246,0.65)" font-weight="900" font-family="sans-serif">+</text>
+      </svg>
+    </div>`;
+  }
+  return `<div class="water-gi${filled?' filled':''}" ${filled?`onclick="removeWater(${i})" title="Quitar este vaso"`:''}>
+    <svg viewBox="0 0 52 66" width="46" height="54">
+      <defs><clipPath id="${id}"><path d="${gPath}"/></clipPath></defs>
+      <path d="${gPath}" fill="${filled?'rgba(37,99,235,0.09)':'rgba(180,210,255,0.18)'}" stroke="${filled?'#3b82f6':'rgba(147,197,253,0.4)'}" stroke-width="1.5" stroke-linejoin="round"/>
+      ${filled?`<rect x="0" y="14" width="52" height="58" fill="#3b82f6" clip-path="url(#${id})"/>
+      <rect x="9" y="6" width="8" height="46" rx="4" fill="rgba(255,255,255,0.42)" clip-path="url(#${id})"/>`:''}
+    </svg>
+  </div>`;
+}
+function _updateWaterRing(count){
+  const ring=document.getElementById('water-ring');
+  if(!ring)return;
+  const circ=144.5,pct=count/8;
+  ring.style.strokeDashoffset=circ*(1-pct);
+  ring.style.transition='stroke-dashoffset .4s ease';
+}
+// ── Cooldown de agua (35 minutos) ──────────────────────
+const WATER_COOLDOWN_MS=35*60*1000;
+let _wCdInterval=null;
+function _remainingCd(){
+  const lt=DATA.water?.lastTime||0;
+  if(!lt)return 0;
+  return Math.max(0,WATER_COOLDOWN_MS-(Date.now()-lt));
+}
+function _fmtCd(ms){
+  const s=Math.ceil(ms/1000);
+  return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
+function _updateCdUI(){
+  const rem=_remainingCd();
+  const cdDiv=document.getElementById('water-cooldown');
+  const cdTime=document.getElementById('water-countdown');
+  const btn=document.getElementById('water-ring-btn');
+  if(rem>0){
+    if(cdDiv)cdDiv.style.display='flex';
+    if(cdTime)cdTime.textContent=_fmtCd(rem);
+    if(btn)btn.classList.add('cd-off');
+  }else{
+    if(cdDiv)cdDiv.style.display='none';
+    if(btn)btn.classList.remove('cd-off');
+    _stopCdTimer();
+  }
+}
+function _startCdTimer(){
+  _stopCdTimer();
+  _updateCdUI();
+  if(_remainingCd()>0)
+    _wCdInterval=setInterval(()=>{_updateCdUI();if(_remainingCd()<=0)_stopCdTimer();},1000);
+}
+function _stopCdTimer(){if(_wCdInterval){clearInterval(_wCdInterval);_wCdInterval=null;}}
+
+function initWater(){renderWater();_startCdTimer();}
+function renderWater(){
+  const count=_getWaterCount();
+  let html='';
+  for(let i=0;i<8;i++) html+=_glassItem(i,count);
+  const grid=document.getElementById('water-grid');
+  if(grid) grid.innerHTML=html;
+  const mlNum=document.getElementById('water-ml-num');
+  if(mlNum) mlNum.textContent=(count*WATER_ML_PER_GLASS).toLocaleString();
+  const msg=document.getElementById('water-msg');
+  if(msg) msg.textContent=WATER_MSGS[count];
+  _updateWaterRing(count);
+  _updateCdUI();
+}
+async function addWater(){
+  const rem=_remainingCd();
+  if(rem>0){showToast(`⏱️ Espera ${_fmtCd(rem)} para el próximo vaso`);return;}
+  const today=nowISO();
+  if(!DATA.water||DATA.water.date!==today) DATA.water={count:0,date:today,lastTime:0};
+  if(DATA.water.count>=8){showToast('¡Ya completaste tus 8 vasos! 🏆');return;}
+  DATA.water.count++;
+  DATA.water.lastTime=Date.now();
+  await save();
+  renderWater();
+  _startCdTimer();
+  if(DATA.water.count===8) showToast('¡Hidratación perfecta hoy! 🏆🎉');
+}
+async function removeWater(i){
+  const today=nowISO();
+  if(!DATA.water||DATA.water.date!==today)return;
+  DATA.water.count=i;
+  DATA.water.lastTime=0;
+  await save();
+  _stopCdTimer();
+  renderWater();
+}
+async function resetWater(){
+  DATA.water={count:0,date:nowISO(),lastTime:0};
+  await save();
+  _stopCdTimer();
+  renderWater();
+}
+
+// ── Racha ──────────────────────────────────────────────
+function renderRacha(){
+  const body=document.getElementById('racha-body'),resetBtn=document.getElementById('btn-reset-racha');
+  if(!DATA.rachaStart){resetBtn.style.display='none';body.innerHTML=`<div class="racha-setup"><p>¿Desde qué fecha empezaste tu hábito de ayuno intermitente?</p><div class="row"><label>Fecha:</label><input type="date" class="time-input" id="inp-racha" style="flex:1"></div><button class="btn-start" onclick="saveRacha()">🦝 ¡Guardar mi fecha de inicio!</button></div>`;return;}
+  resetBtn.style.display='block';
+  const days=diffDays(DATA.rachaStart),startFmt=new Date(DATA.rachaStart+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}),startDateObj=new Date(DATA.rachaStart+'T12:00:00');
+  const mls=MILESTONES.map(m=>{
+    const reached=DATA.milestonesReached.includes(m.key)||days>=m.days;
+    const mDate=new Date(startDateObj);mDate.setDate(mDate.getDate()+m.days);
+    const dateFmt=mDate.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+    return `<div class="milestone" style="opacity:${reached?1:.45}"><div class="ml-icon ${reached?'reached':'locked'}">${reached?m.icon:'🔒'}</div><div><div class="ml-label" style="color:${reached?'#1a1a1a':'rgba(0,0,0,.38)'}">${m.label} ${reached?`<span style="font-size:11px;color:#888;font-weight:700">· ${m.msg}</span>`:''}</div><div class="ml-date">${reached?`✅ Logrado el ${dateFmt}`:`📅 El ${dateFmt}`}</div></div></div>`;
+  }).join('');
+  body.innerHTML=`<div class="racha-days">${days}</div><div class="racha-sub">días desde el ${startFmt} 🎯</div><div class="timeline"><div class="tl-line"></div>${mls}</div>`;
+}
+async function saveRacha(){const val=document.getElementById('inp-racha')?.value;if(!val){showToast('Selecciona una fecha');return;}DATA.rachaStart=val;await save();checkMilestones(true);renderRacha();showToast('¡Fecha guardada! 🦝');}
+async function resetRacha(){if(!confirm('¿Cambiar la fecha de inicio de tu racha?'))return;DATA.rachaStart=null;DATA.milestonesReached=[];await save();renderRacha();}
+
+// ── Init ───────────────────────────────────────────────
+load();
 </script>
 </body>
 </html>
