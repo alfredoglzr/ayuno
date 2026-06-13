@@ -256,42 +256,32 @@
   </div>
   <!-- Agua -->
   <div class="card" style="padding:18px">
-    <div class="water-head">
-      <div>
-        <div class="water-lbl-sm">Agua</div>
-        <div><span class="water-ml-num" id="water-ml-num">0</span><span class="water-ml-unit"> ml</span></div>
-      </div>
-
-       <div id="moneda" > 
-         <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.14/dist/dotlottie-wc.js"
-  type="module">
- 
-</script>
-
-<dotlottie-wc
-  src="https://lottie.host/051e54e9-d82f-4aac-afbd-cd2f888912ad/Ee2AW0kTwk.lottie"
-  style="
-    width: 50px;
-    height: 50px;
-    marflexflfflflex-shrink: 290%;
-    mflflex-shrink: 0px;
-    padding-top: 0px;"
-  autoplay
-  loop>
-  
-</dotlottie-wc>
-         
-      </div>
-      <button class="water-ring-btn" onclick="addWater()" id="water-ring-btn" title="Agregar vaso">
-        <svg width="60" height="60" viewBox="0 0 60 60">
-          <circle cx="30" cy="30" r="26" fill="rgba(220,235,255,.75)" stroke="rgba(180,210,255,.5)" stroke-width="2"/>
-          <circle cx="30" cy="30" r="23" fill="none" stroke="#3b82f6" stroke-width="4.5"
-                  stroke-linecap="round" stroke-dasharray="144.5" stroke-dashoffset="144.5"
-                  transform="rotate(-90 30 30)" id="water-ring"/>
-        </svg>
-        <span class="water-ring-plus">+</span>
-      </button>
+  <div class="water-head">
+  <!-- Lado izquierdo -->
+  <div id="div-1">
+    <div class="water-lbl-sm">Agua</div>
+    <div>
+      <span class="water-ml-num" id="water-ml-num">0</span>
+      <span class="water-ml-unit"> ml</span>
     </div>
+  </div>
+
+  <!-- Lado derecho: Contenedor para alinear la moneda y el botón -->
+  <div class="water-right-group"> 
+    <div id="moneda-padre"> 
+      <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.14/dist/dotlottie-wc.js" type="module"></script>
+      <dotlottie-wc src="https://lottie.host/051e54e9-d82f-4aac-afbd-cd2f888912ad/Ee2AW0kTwk.lottie" style="width: 50px; height: 50px; padding-top: 0px;" autoplay="" loop=""></dotlottie-wc>
+    </div>
+
+    <button class="water-ring-btn" onclick="addWater()" id="water-ring-btn" title="Agregar vaso">
+      <svg width="60" height="60" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="26" fill="rgba(220,235,255,.75)" stroke="rgba(180,210,255,.5)" stroke-width="2"></circle>
+        <circle cx="30" cy="30" r="23" fill="none" stroke="#3b82f6" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="144.5" stroke-dashoffset="144.5" transform="rotate(-90 30 30)" id="water-ring" style="stroke-dashoffset: 144.5; transition: stroke-dashoffset 0.4s;"></circle>
+      </svg>
+      <span class="water-ring-plus">+</span>
+    </button>
+  </div>
+</div>
     <div class="water-grid" id="water-grid"></div>
     <div id="water-cooldown" class="water-cooldown" style="display:none">
       <span class="water-cooldown-ico">⏱️</span>
@@ -302,7 +292,7 @@
       </div>
     </div>
     <div class="water-msg" id="water-msg">¡Toca + para registrar tu primer vaso! 💧</div>
-  </div>j
+  </div>
   <!-- Historial -->
   <div class="card" style="padding:18px">
     <div class="hist-header">
